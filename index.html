@@ -3508,7 +3508,10 @@ function testFabricInventory() {
         let activeTechSpecSampleId = null;
 
         let dateFormat = localStorage.getItem('apparel_date_format') || "DD/MM/YYYY";
-        let syncUrl = localStorage.getItem('apparel_gas_url') || localStorage.getItem('apparel_gas_sample_url') || "";
+        // Shared company backend: embedded so staff only need the GitHub Pages website URL.
+        const KOUR_SHARED_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvk4UC3erI5OXPY2v6SJbdaMfT3DsbPAHtJEkSduHkyCSTbVmcgLyR9aNAyDi8SriU/exec";
+        let syncUrl = KOUR_SHARED_GAS_WEB_APP_URL;
+        try { localStorage.setItem('apparel_gas_url', KOUR_SHARED_GAS_WEB_APP_URL); } catch (e) {}
         let monthlyChartInstance = null;
         let sizeChartInstance = null;
         function renderDashboardSizeBreakdownChart() {
