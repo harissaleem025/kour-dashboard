@@ -3753,8 +3753,8 @@ function testFabricInventory() {
                 // Refresh every shared dataset so staff see the same latest records,
                 // regardless of which dashboard section is currently open.
                 const ok=await syncAllKourData(true);
-                if(ok){ setKourSyncTime(); }
-                else { console.warn('KOUR automatic sync completed with one or more dataset failures.'); }
+                if(ok){ kourSheetsVerified=true; kourSheetsCheckAt=new Date(); updateSyncBadge(true); setKourSyncTime(); }
+                else { kourSheetsVerified=false; kourSheetsCheckAt=new Date(); updateSyncBadge(false); console.warn('KOUR automatic sync completed with one or more dataset failures.'); }
             } catch(e){ console.error('KOUR automatic sync:',e); }
             finally{ kourAutoSyncBusy=false; }
         }
@@ -5617,7 +5617,7 @@ function testFabricInventory() {
             if(!url){ kourSheetsVerified=false; kourSheetsCheckAt=new Date(); updateSyncBadge(false); showAlert('No shared Apps Script URL is configured.',true); return false; }
             try{
                 showAlert('Checking Google Sheets connection...');
-                const response=await fetch(url+(url.includes('?')?'&':'?')+'sheet=production&test=1&t='+Date.now(),{method:'GET',cache:'no-store'});
+                const response=await fetch(url+(url.includes('?')?'&':'?')+'sheet=orders&t='+Date.now(),{method:'GET',cache:'no-store',redirect:'follow'});
                 if(!response.ok) throw new Error('HTTP '+response.status);
                 const data=await response.json(); if(!Array.isArray(data)) throw new Error('Unexpected response');
                 kourSheetsVerified=true; kourSheetsCheckAt=new Date(); updateSyncBadge(true);
@@ -6539,9 +6539,11 @@ function testFabricInventory() {
                     fetchPatternInventory(true)
                 ]);
                 const okCount=[ordersOk,samplesOk,gatePassOk,financeOk,patternOk].filter(Boolean).length;
-                setKourSyncTime();
+                const allOk=okCount===5;
+                if(allOk){ kourSheetsVerified=true; kourSheetsCheckAt=new Date(); updateSyncBadge(true); setKourSyncTime(); }
+                else { kourSheetsVerified=false; kourSheetsCheckAt=new Date(); updateSyncBadge(false); }
                 if(!silent) showAlert(`KOUR Sync All complete — ${okCount}/5 data groups updated: Orders/Production/Fabric, Samples, Gate Pass, Petty Cash, Pattern Inventory.`);
-                return okCount===5;
+                return allOk;
             }catch(e){
                 console.error('KOUR Sync All:',e);
                 if(!silent) showAlert('KOUR Sync All finished with an error. Check Google Sheets connection.',true);
