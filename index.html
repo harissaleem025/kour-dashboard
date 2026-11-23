@@ -1612,17 +1612,16 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
                 </div>
 
                 <p class="text-xs text-slate-600 leading-relaxed">
-                    Connect <b>one Google Spreadsheet</b> to the dashboard. The same Apps Script uses two tabs:
-                    <b>Sheet1 = Orders & Production</b> and <b>Sheet2 = Sample & Development</b>.
+                    Google Sheets is already connected automatically for this shared website. Staff do not need to enter or save any connection URL. The same Apps Script uses two tabs: <b>Sheet1 = Orders & Production</b> and <b>Sheet2 = Sample & Development</b>.
                 </p>
 
                 <div class="gas-connection-card p-3 bg-indigo-50/50 border border-indigo-200 rounded-xl space-y-1.5">
                     <label class="block text-xs font-bold text-indigo-950 flex items-center gap-1.5">
                         <i class="fa-solid fa-link text-indigo-600"></i> Google Apps Script Web App URL
                     </label>
-                    <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="gas-url-input" readonly aria-readonly="true" placeholder="Shared connection is embedded" class="w-full border border-slate-300 rounded-lg p-2 text-xs bg-slate-100 text-slate-600">
                     <p class="text-[10px] text-slate-500">
-                        One URL only. The dashboard automatically sends Orders to <b>Sheet1</b> and Samples to <b>Sheet2</b>.
+                        Embedded shared connection — read-only. Dashboard sync runs automatically; staff do not need to configure it.
                     </p>
                 </div>
 
@@ -1639,9 +1638,6 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
 
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="testGoogleSheetsConnection()" class="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-200"><i class="fa-solid fa-plug mr-1"></i> Test Connection</button>
-                    <button onclick="saveSyncSettings()" class="bg-indigo-600 text-white text-xs font-semibold px-5 py-2 rounded-lg shadow hover:bg-indigo-700">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i> Save Connection URL
-                    </button>
                 </div>
 
                 <div class="border rounded-xl bg-slate-900 text-slate-200 p-3 space-y-2 text-xs">
@@ -1652,7 +1648,7 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
                         </button>
                     </div>
                     <p class="text-[10px] text-slate-400">
-                        Open Apps Script from the same Google Spreadsheet, paste this code, deploy it as a Web App, and use the single <b>/exec</b> URL above.
+                        This is the backend script reference. The live dashboard already uses its shared Web App URL and auto-syncs without staff setup.
                     </p>
                     <pre id="gas-combined-script-code" class="text-[11px] overflow-x-auto h-80 p-2 font-mono bg-slate-950 text-emerald-400 rounded">/************************************************************
  * KOUR GARMENT PRODUCTION DASHBOARD
@@ -3689,16 +3685,21 @@ function testFabricInventory() {
             updateSampleStats();
         }
 
+        let kourSheetsVerified = false;
+        let kourSheetsCheckAt = null;
+
         function updateSyncBadge(isConnected) {
             const btn = document.getElementById('sync-status-btn');
             const txt = document.getElementById('sync-status-text');
             if (!btn || !txt) return;
-            if (isConnected) {
+            if (kourSheetsVerified && isConnected) {
                 btn.className = "bg-emerald-700 hover:bg-emerald-600 text-xs text-white font-semibold px-3 py-1.5 rounded-lg border border-emerald-500 flex items-center gap-2 transition";
-                txt.innerText = kourAutoSyncEnabled ? "Live Sync: ON" : "Sheets: Connected";
+                txt.innerText = "Sheets: Connected";
+                btn.title = kourSheetsCheckAt ? "Connection verified at " + kourSheetsCheckAt.toLocaleTimeString() + " — click to check again" : "Connection verified — click to check again";
             } else {
-                btn.className = "bg-indigo-900 hover:bg-indigo-800 text-xs text-yellow-300 font-semibold px-3 py-1.5 rounded-lg border border-indigo-700 flex items-center gap-2 transition";
-                txt.innerText = "Google Sheets Setup";
+                btn.className = "bg-amber-700 hover:bg-amber-600 text-xs text-white font-semibold px-3 py-1.5 rounded-lg border border-amber-500 flex items-center gap-2 transition";
+                txt.innerText = kourSheetsCheckAt ? "Sheets: Offline" : "Sheets: Not verified";
+                btn.title = "Google Sheets connection not verified — click to open setup and check";
             }
             updateKourAutoSyncIndicator();
         }
@@ -3707,7 +3708,7 @@ function testFabricInventory() {
         // No user toggle is required. Data refreshes in the background and also refreshes
         // immediately when the browser tab becomes active again.
         function updateKourAutoSyncIndicator(){ return null; }
-        function setKourSyncTime(){ kourLastSyncAt=new Date(); }
+        function setKourSyncTime(){ kourLastSyncAt=new Date(); const b=document.getElementById('sync-status-btn'); if(b) b.title='Last successful data refresh: '+kourLastSyncAt.toLocaleString()+' — click to check connection'; }
         function toggleKourAutoSync(){ return; }
         function stopKourAutoSync(){ if(kourAutoSyncTimer){clearInterval(kourAutoSyncTimer);kourAutoSyncTimer=null;} }
         function initKourAutoSync(){
@@ -3721,7 +3722,7 @@ function testFabricInventory() {
                     syncUrl=v;
                 });
             }
-            if(syncUrl) startKourAutoSync();
+            if(syncUrl) { startKourAutoSync(); setTimeout(()=>testGoogleSheetsConnection(),2500); }
             document.addEventListener('visibilitychange',()=>{
                 if(!document.hidden && syncUrl && (Date.now()-kourLastAutoSyncMs>60000)) runKourAutoSync();
             });
@@ -3732,8 +3733,8 @@ function testFabricInventory() {
             stopKourAutoSync();
             if(!syncUrl)return;
             setTimeout(()=>runKourAutoSync(),2000);
-            // Full background refresh every 2 minutes instead of every 30 seconds.
-            kourAutoSyncTimer=setInterval(runKourAutoSync,120000);
+            // Refresh every minute, including all shared datasets.
+            kourAutoSyncTimer=setInterval(runKourAutoSync,60000);
         }
         function kourDashboardIsBeingEdited(){
             const a=document.activeElement;
@@ -3749,13 +3750,11 @@ function testFabricInventory() {
             kourAutoSyncBusy=true;
             kourLastAutoSyncMs=Date.now();
             try{
-                // Only refresh the dataset that matters to the currently open screen.
-                // This removes the old 4-group / 5-request refresh on every 30-second tick.
-                if(kourCurrentTab==='sample') await fetchSamplesFromGoogleSheets(true);
-                else if(kourCurrentTab==='gate-pass') await fetchGatePassesFromGoogleSheets(true);
-                else if(kourCurrentTab==='finance') await fetchFinanceFromGoogleSheets(true);
-                else await fetchFromGoogleSheets(true); // Orders + Production + Fabric
-                setKourSyncTime();
+                // Refresh every shared dataset so staff see the same latest records,
+                // regardless of which dashboard section is currently open.
+                const ok=await syncAllKourData(true);
+                if(ok){ setKourSyncTime(); }
+                else { console.warn('KOUR automatic sync completed with one or more dataset failures.'); }
             } catch(e){ console.error('KOUR automatic sync:',e); }
             finally{ kourAutoSyncBusy=false; }
         }
@@ -5614,15 +5613,22 @@ function testFabricInventory() {
         }
 
         async function testGoogleSheetsConnection(){
-            const url=document.getElementById('gas-url-input').value.trim();
-            if(!url){showAlert('Enter the Google Apps Script Web App /exec URL first.',true);return;}
+            const url=document.getElementById('gas-url-input').value.trim() || syncUrl;
+            if(!url){ kourSheetsVerified=false; kourSheetsCheckAt=new Date(); updateSyncBadge(false); showAlert('No shared Apps Script URL is configured.',true); return false; }
             try{
-                showAlert('Testing Google Sheets connection...');
+                showAlert('Checking Google Sheets connection...');
                 const response=await fetch(url+(url.includes('?')?'&':'?')+'sheet=production&test=1&t='+Date.now(),{method:'GET',cache:'no-store'});
                 if(!response.ok) throw new Error('HTTP '+response.status);
                 const data=await response.json(); if(!Array.isArray(data)) throw new Error('Unexpected response');
-                showAlert('Connection successful. Google Sheets Web App is responding.');
-            }catch(e){console.error(e);showAlert('Connection failed. Deploy Apps Script as Web App, Execute as Me, and set Who has access = Anyone.',true);}
+                kourSheetsVerified=true; kourSheetsCheckAt=new Date(); updateSyncBadge(true);
+                showAlert('CONNECTED — Google Apps Script responded successfully.');
+                return true;
+            }catch(e){
+                console.error('Google Sheets connection test failed:',e);
+                kourSheetsVerified=false; kourSheetsCheckAt=new Date(); updateSyncBadge(false);
+                showAlert('OFFLINE — Unable to verify Google Sheets. Check Apps Script deployment access and connection.',true);
+                return false;
+            }
         }
 
         function saveSyncSettings() {
@@ -5631,10 +5637,11 @@ function testFabricInventory() {
             // needs to be re-entered on every sync.
             localStorage.setItem('apparel_gas_url', syncUrl);
             localStorage.removeItem('apparel_gas_sample_url');
+            kourSheetsVerified=false; kourSheetsCheckAt=null;
             updateSyncBadge(Boolean(syncUrl));
             closeSyncModal();
             if(syncUrl) startKourAutoSync(); else stopKourAutoSync();
-            showAlert("Google Sheets URL saved on this device. You won't be asked for it again unless you clear it.");
+            showAlert("Shared Google Sheets connection is configured. Automatic sync has started.");
         }
 
         function copyCombinedAppsScriptCode() {
@@ -6531,10 +6538,10 @@ function testFabricInventory() {
                     fetchFinanceFromGoogleSheets(true),
                     fetchPatternInventory(true)
                 ]);
-                const okCount=[ordersOk,samplesOk,gatePassOk,financeOk].filter(Boolean).length;
+                const okCount=[ordersOk,samplesOk,gatePassOk,financeOk,patternOk].filter(Boolean).length;
                 setKourSyncTime();
-                if(!silent) showAlert(`KOUR Sync All complete — ${okCount}/4 data groups updated: Orders, Production/Fabric, Samples, Gate Pass, Petty Cash.`);
-                return okCount===4;
+                if(!silent) showAlert(`KOUR Sync All complete — ${okCount}/5 data groups updated: Orders/Production/Fabric, Samples, Gate Pass, Petty Cash, Pattern Inventory.`);
+                return okCount===5;
             }catch(e){
                 console.error('KOUR Sync All:',e);
                 if(!silent) showAlert('KOUR Sync All finished with an error. Check Google Sheets connection.',true);
