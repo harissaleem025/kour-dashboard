@@ -7684,6 +7684,26 @@ window.addEventListener('resize',()=>{
  const originalInitAutoSync=window.initKourAutoSync;
  window.__kourOriginalInitAutoSync=originalInitAutoSync;
  window.initKourAutoSync=function(){if(authToken && typeof originalInitAutoSync==='function')return originalInitAutoSync();if(typeof stopKourAutoSync==='function')stopKourAutoSync();};
+ const actionPermissionMap={
+   UPSERT:['orders_create','orders_edit'],UPDATE:['orders_edit'],DELETE:['orders_delete'],COSTING_SAVE:['costing_edit'],
+   UPSERT_SAMPLE:['samples_create','samples_edit'],DELETE_SAMPLE:['samples_delete'],APPROVE_SAMPLE:['samples_approve'],
+   UPSERT_PRODUCTION:['production_edit'],DELETE_PRODUCTION:['production_edit'],SAVE_FABRIC:['fabric_edit'],UPSERT_FABRIC:['fabric_edit'],UPDATE_FABRIC:['fabric_edit'],DELETE_FABRIC:['fabric_edit'],
+   UPSERT_PATTERN:['pattern_edit'],DELETE_PATTERN:['pattern_delete'],UPSERT_SAMPLE_INVENTORY:['samples_edit'],DELETE_SAMPLE_INVENTORY:['samples_delete'],
+   UPSERT_GATE_PASS:['gatepass_edit'],DELETE_GATE_PASS:['gatepass_edit'],UPSERT_FINANCE:['finance_edit'],DELETE_FINANCE:['finance_edit']
+ };
+ function notifyPermissionAttempt(payload){
+   if(!currentUser || currentUser.role==='Admin' || !payload || !payload.action) return true;
+   let required=actionPermissionMap[String(payload.action).toUpperCase()];
+   if(String(payload.action).toUpperCase()==='UPSERT_SAMPLE' && /approv/i.test(String((payload.data||{}).status||''))) required=['samples_approve'];
+   if(!required || required.some(p=>(currentUser.permissions||[]).includes(p))) return true;
+   const labels={orders_create:'create orders',orders_edit:'edit orders',orders_delete:'delete orders',samples_create:'create samples',samples_edit:'edit samples',samples_delete:'delete samples',samples_approve:'approve samples',costing_edit:'edit costing',production_edit:'edit production',fabric_edit:'manage fabric inventory',pattern_edit:'edit patterns',pattern_delete:'delete patterns',gatepass_edit:'manage gate passes',finance_edit:'manage finance'};
+   const label=required.map(p=>labels[p]||p).join(' or ');
+   alert('Permission denied: your account does not have permission to '+label+'. No changes were saved. Please contact your Admin.');
+   // The dashboard uses optimistic UI in some forms. Reload after blocking the
+   // request so any unsaved in-memory display change is discarded as well.
+   setTimeout(()=>location.reload(),0);
+   return false;
+ }
  const perms=[
  ['dashboard','Dashboard'],['orders_view','View Orders'],['orders_create','Create Orders'],['orders_edit','Edit Orders'],['orders_delete','Delete Orders'],['costing_view','View Costing / Profit'],['costing_edit','Edit Costing / Profit'],
  ['samples_view','View Samples'],['samples_create','Create Samples'],['samples_edit','Edit Samples'],['samples_delete','Delete Samples'],['samples_approve','Approve Samples'],
@@ -7692,31 +7712,23 @@ window.addEventListener('resize',()=>{
  ['finance_view','View Finance'],['finance_edit','Manage Finance'],['management_view','Management Dashboard'],['reports_view','Reports'],['packing_view','Packing'],['forms_view','Department Forms']
  ];
  function endpoint(url){try{return new URL(typeof url==='string'?url:url.url,location.href).href.split('?')[0]===new URL(syncUrl,location.href).href.split('?')[0]}catch(e){return false}}
- function kourPermissionForAction(action,data){
-   const map={UPSERT:['orders_create','orders_edit'],UPDATE:['orders_edit'],DELETE:['orders_delete'],COSTING_SAVE:['costing_edit'],UPSERT_SAMPLE:['samples_create','samples_edit'],DELETE_SAMPLE:['samples_delete'],APPROVE_SAMPLE:['samples_approve'],UPSERT_PRODUCTION:['production_edit'],DELETE_PRODUCTION:['production_edit'],SAVE_FABRIC:['fabric_edit'],UPSERT_FABRIC:['fabric_edit'],UPDATE_FABRIC:['fabric_edit'],DELETE_FABRIC:['fabric_edit'],UPSERT_PATTERN:['pattern_edit'],DELETE_PATTERN:['pattern_delete'],MOBILE_UPDATE_PATTERN:['pattern_edit'],UPSERT_SAMPLE_INVENTORY:['samples_edit'],DELETE_SAMPLE_INVENTORY:['samples_delete'],UPSERT_GATE_PASS:['gatepass_edit'],DELETE_GATE_PASS:['gatepass_edit'],UPSERT_FINANCE:['finance_edit'],DELETE_FINANCE:['finance_edit']};
-   if(String(action).toUpperCase()==='UPSERT_SAMPLE' && /approv/i.test(String((data||{}).status||'')))return ['samples_approve'];
-   return map[String(action||'').toUpperCase()]||['dashboard'];
- }
- function kourPermissionForSheet(sheet){const map={orders:'orders_view',ordercosting:'costing_view','order-costing':'costing_view',costing:'costing_view',samples:'samples_view',production:'production_view',fabric:'fabric_view',fabricinventory:'fabric_view',fabric_inventory:'fabric_view',patterninventory:'pattern_view','pattern-inventory':'pattern_view',pattern_inventory:'pattern_view',sampleinventory:'samples_view','sample-inventory':'samples_view',sample_inventory:'samples_view',gatepass:'gatepass_view','gate-pass':'gatepass_view',gate_pass:'gatepass_view',finance:'finance_view',pettycash:'finance_view','petty-cash':'finance_view',test:'dashboard'};return map[String(sheet||'orders').toLowerCase()]||'dashboard';}
- function kourShowPermissionDenied(required){const names=required.map(p=>p.replace(/_/g,' ')).join(' or ');alert('PERMISSION DENIED\n\nYou do not have permission to perform this action.\nRequired access: '+names+'.\n\nPlease contact your Admin if you need access.');}
  window.fetch=function(input,init){
    init=init?Object.assign({},init):{};
    if(endpoint(input)){
      let u=typeof input==='string'?input:input.url;
      const method=String(init.method||'GET').toUpperCase();
-     if(currentUser && currentUser.role!=='Admin'){
-       let required=null;
-       if(method==='GET')required=[kourPermissionForSheet(new URL(u,location.href).searchParams.get('sheet')||'orders')];
-       else if(init.body && typeof init.body==='string'){
-         try{const payload=JSON.parse(init.body);if(payload.action && !['LOGIN','LOGIN_SETUP','AUTH_STATUS','LOGOUT'].includes(payload.action) && !String(payload.action).startsWith('ADMIN_'))required=kourPermissionForAction(payload.action,payload.data);}catch(e){}
-       }
-       if(required && !required.some(p=>(currentUser.permissions||[]).includes(p))){kourShowPermissionDenied(required);return Promise.resolve(new Response(JSON.stringify({status:'ERROR',message:'Access denied. Missing permission: '+required.join(' or ')}),{status:403,headers:{'Content-Type':'application/json'}}));}
-     }
      if(method==='GET'){
        if(authToken){u+=(u.includes('?')?'&':'?')+'authToken='+encodeURIComponent(authToken);}
        input=u;
      }else if(init.body && typeof init.body==='string'){
-       try{const payload=JSON.parse(init.body);if(payload.action!=='LOGIN'&&payload.action!=='LOGIN_SETUP'&&authToken)payload.authToken=authToken;init.body=JSON.stringify(payload);}catch(e){}
+       try{
+         const payload=JSON.parse(init.body);
+         if(!notifyPermissionAttempt(payload)){
+           return Promise.resolve(new Response(JSON.stringify({status:'ERROR',message:'Permission denied. No changes were saved.'}),{status:403,headers:{'Content-Type':'application/json'}}));
+         }
+         if(payload.action!=='LOGIN'&&payload.action!=='LOGIN_SETUP'&&authToken)payload.authToken=authToken;
+         init.body=JSON.stringify(payload);
+       }catch(e){}
      }
    }
    return originalFetch(input,init);
@@ -7754,6 +7766,16 @@ window.addEventListener('resize',()=>{
  }
  document.getElementById('kour-login-form').addEventListener('submit',e=>{e.preventDefault();login({username:document.getElementById('kour-login-username').value,password:document.getElementById('kour-login-password').value},false);});
  document.getElementById('kour-setup-form').addEventListener('submit',e=>{e.preventDefault();login({name:document.getElementById('kour-setup-name').value,username:document.getElementById('kour-setup-username').value,password:document.getElementById('kour-setup-password').value},true);});
+ window.kourChangePassword=async function(){
+   if(!currentUser){alert('Please log in first.');return;}
+   const currentPassword=prompt('Enter your current password:');if(currentPassword===null)return;
+   const newPassword=prompt('Enter your new password (minimum 8 characters):');if(newPassword===null)return;
+   if(newPassword.length<8){alert('Your new password must be at least 8 characters.');return;}
+   const confirmPassword=prompt('Confirm your new password:');if(confirmPassword===null)return;
+   if(newPassword!==confirmPassword){alert('The new passwords do not match.');return;}
+   try{const out=await post('CHANGE_PASSWORD',{currentPassword,newPassword});if(out.status!=='SUCCESS')throw new Error(out.message||'Password change failed.');alert('Your password has been changed successfully.');}
+   catch(e){alert(e.message||'Could not change password.');}
+ };
  window.kourLogout=async function(){try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);location.reload();};
  window.kourOpenAccounts=async function(){if(!currentUser||currentUser.role!=='Admin')return;document.getElementById('kour-account-panel').classList.add('open');renderPermissions();await loadUsers();};
  window.kourCloseAccounts=()=>document.getElementById('kour-account-panel').classList.remove('open');
@@ -7770,7 +7792,7 @@ window.addEventListener('resize',()=>{
  document.getElementById('kour-staff-form').addEventListener('submit',async e=>{e.preventDefault();const data={name:document.getElementById('kour-staff-name').value,username:document.getElementById('kour-staff-username').value,password:document.getElementById('kour-staff-password').value,permissions:Array.from(document.querySelectorAll('.kour-permission-check:checked')).map(c=>c.value)};try{const out=await post('ADMIN_USER_SAVE',data);if(out.status!=='SUCCESS')throw new Error(out.message);window.kourUsers=out.users||[];kourResetStaffForm();await loadUsers();alert('Staff account saved.');}catch(err){alert(err.message||'Could not save account.');}});
  document.addEventListener('DOMContentLoaded',async()=>{
    const toolbar=document.querySelector('.kour-topbar>div');
-   if(toolbar){const box=document.createElement('div');box.className='flex items-center gap-2';box.innerHTML='<span id="kour-user-label" class="hidden sm:inline text-[10px] text-amber-100"></span><button id="kour-manage-users-btn" class="hidden bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourOpenAccounts()">Staff Access</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourLogout()">Logout</button>';toolbar.appendChild(box);}
+   if(toolbar){const box=document.createElement('div');box.className='flex items-center gap-2';box.innerHTML='<span id="kour-user-label" class="hidden sm:inline text-[10px] text-amber-100"></span><button id="kour-manage-users-btn" class="hidden bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourOpenAccounts()">Staff Access</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourChangePassword()">Change Password</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourLogout()">Logout</button>';toolbar.appendChild(box);}
    const ok=await checkSession();
    if(!ok){
      showLogin();
