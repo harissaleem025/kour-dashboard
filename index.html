@@ -4011,103 +4011,6 @@ function testFabricInventory() {
 </div>
 
 
-<script>
-(function(){
- const AUTH_TOKEN_KEY='kour_auth_token_v1';
- const AUTH_USER_KEY='kour_auth_user_v1';
- const originalFetch=window.fetch.bind(window);
- let authToken=localStorage.getItem(AUTH_TOKEN_KEY)||'';
- let currentUser=null;
- const originalInitAutoSync=window.initKourAutoSync;
- window.__kourOriginalInitAutoSync=originalInitAutoSync;
- window.initKourAutoSync=function(){if(authToken && typeof originalInitAutoSync==='function')return originalInitAutoSync();if(typeof stopKourAutoSync==='function')stopKourAutoSync();};
- const perms=[
- ['dashboard','Dashboard'],['orders_view','View Orders'],['orders_create','Create Orders'],['orders_edit','Edit Orders'],['orders_delete','Delete Orders'],['costing_view','View Costing / Profit'],['costing_edit','Edit Costing / Profit'],
- ['samples_view','View Samples'],['samples_create','Create Samples'],['samples_edit','Edit Samples'],['samples_delete','Delete Samples'],['samples_approve','Approve Samples'],
- ['production_view','View Daily Production'],['production_edit','Edit Daily Production'],['fabric_view','View Fabric Inventory'],['fabric_edit','Manage Fabric Inventory'],
- ['pattern_view','View Pattern Inventory'],['pattern_edit','Edit Patterns'],['pattern_delete','Delete Patterns'],['gatepass_view','View Gate Pass'],['gatepass_edit','Manage Gate Pass'],
- ['finance_view','View Finance'],['finance_edit','Manage Finance'],['management_view','Management Dashboard'],['reports_view','Reports'],['packing_view','Packing'],['forms_view','Department Forms']
- ];
- function endpoint(url){try{return new URL(typeof url==='string'?url:url.url,location.href).href.split('?')[0]===new URL(syncUrl,location.href).href.split('?')[0]}catch(e){return false}}
- window.fetch=function(input,init){
-   init=init?Object.assign({},init):{};
-   if(endpoint(input)){
-     let u=typeof input==='string'?input:input.url;
-     const method=String(init.method||'GET').toUpperCase();
-     if(method==='GET'){
-       if(authToken){u+=(u.includes('?')?'&':'?')+'authToken='+encodeURIComponent(authToken);}
-       input=u;
-     }else if(init.body && typeof init.body==='string'){
-       try{const payload=JSON.parse(init.body);if(payload.action!=='LOGIN'&&payload.action!=='LOGIN_SETUP'&&authToken)payload.authToken=authToken;init.body=JSON.stringify(payload);}catch(e){}
-     }
-   }
-   return originalFetch(input,init);
- };
- function message(t,isError=true){const el=document.getElementById('kour-auth-message');if(el){el.textContent=t||'';el.className='text-xs mt-4 '+(isError?'text-red-700':'text-emerald-700');}}
- function showLogin(){document.body.classList.remove('kour-authenticated');document.getElementById('kour-auth-screen').classList.remove('kour-auth-hidden');}
- function enter(user,token){
-   authToken=token;currentUser=user;localStorage.setItem(AUTH_TOKEN_KEY,token);localStorage.setItem(AUTH_USER_KEY,JSON.stringify(user));
-   document.body.classList.add('kour-authenticated');document.getElementById('kour-auth-screen').classList.add('kour-auth-hidden');
-   const label=document.getElementById('kour-user-label');if(label)label.textContent=(user.name||user.username)+' · '+user.role;
-   const adminBtn=document.getElementById('kour-manage-users-btn');if(adminBtn)adminBtn.classList.toggle('hidden',user.role!=='Admin');
-   if(window.__kourOriginalInitAutoSync)window.__kourOriginalInitAutoSync();
-   if(typeof syncAllKourData==='function')setTimeout(()=>syncAllKourData(),500);
- }
- async function post(action,data){
-   const r=await originalFetch(syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},authToken:authToken})});
-   return await r.json();
- }
- async function checkSession(){
-   if(!authToken)return false;
-   try{
-     const r=await originalFetch(syncUrl+'?sheet=test&authToken='+encodeURIComponent(authToken)+'&t='+Date.now(),{cache:'no-store'});
-     const out=await r.json();if(out&&out.status==='SUCCESS'){let user={};try{user=JSON.parse(localStorage.getItem(AUTH_USER_KEY)||'{}')}catch(e){}enter(user,authToken);return true;}
-   }catch(e){}
-   authToken='';localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);if(typeof stopKourAutoSync==='function')stopKourAutoSync();return false;
- }
- async function login(data,setup){
-   message('Connecting securely to KOUR…',false);
-   try{
-     const out=await post(setup?'LOGIN_SETUP':'LOGIN',data);
-     if(out.status==='NO_USERS'){document.getElementById('kour-auth-login').classList.add('hidden');document.getElementById('kour-auth-setup').classList.remove('hidden');message('No Admin account exists yet. Create the initial Admin account.',false);return;}
-     if(out.status!=='SUCCESS')throw new Error(out.message||'Login failed.');
-     enter(out.user,out.token);message('',false);
-   }catch(e){message(e.message||'Could not connect. Check the Google Apps Script deployment.');}
- }
- document.getElementById('kour-login-form').addEventListener('submit',e=>{e.preventDefault();login({username:document.getElementById('kour-login-username').value,password:document.getElementById('kour-login-password').value},false);});
- document.getElementById('kour-setup-form').addEventListener('submit',e=>{e.preventDefault();login({name:document.getElementById('kour-setup-name').value,username:document.getElementById('kour-setup-username').value,password:document.getElementById('kour-setup-password').value},true);});
- window.kourLogout=async function(){try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);location.reload();};
- window.kourOpenAccounts=async function(){if(!currentUser||currentUser.role!=='Admin')return;document.getElementById('kour-account-panel').classList.add('open');renderPermissions();await loadUsers();};
- window.kourCloseAccounts=()=>document.getElementById('kour-account-panel').classList.remove('open');
- function renderPermissions(){
-  document.getElementById('kour-permission-list').innerHTML=perms.map(([v,l])=>`<label class="flex items-center gap-2 border rounded-lg p-2 font-medium"><input type="checkbox" value="${v}" class="kour-permission-check"> ${l}</label>`).join('');
- }
- async function loadUsers(){
-  try{const out=await post('ADMIN_USERS_GET',{});if(out.status!=='SUCCESS')throw new Error(out.message);document.getElementById('kour-staff-list').innerHTML=(out.users||[]).map(u=>`<div class="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-2"><div><b>${escapeHtml(u.name||u.username)}</b> <span class="text-slate-500">(${escapeHtml(u.username)}) · ${u.role}${u.disabled?' · DISABLED':''}</span><div class="text-slate-500">${(u.permissions||[]).length} permissions</div></div>${u.role==='Staff'?`<div class="flex gap-2"><button class="border rounded px-2 py-1" onclick="kourEditStaff('${encodeURIComponent(u.username)}')">Edit</button><button class="border rounded px-2 py-1" onclick="kourToggleStaff('${encodeURIComponent(u.username)}',${!u.disabled})">${u.disabled?'Enable':'Disable'}</button></div>`:''}</div>`).join('')||'No accounts yet.';window.kourUsers=out.users||[];}catch(e){alert(e.message||'Could not load users.');}
- }
- function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
- window.kourEditStaff=function(encoded){const u=(window.kourUsers||[]).find(x=>x.username===decodeURIComponent(encoded));if(!u)return;document.getElementById('kour-staff-name').value=u.name||'';document.getElementById('kour-staff-username').value=u.username;document.getElementById('kour-staff-username').readOnly=true;document.getElementById('kour-staff-password').value='';document.querySelectorAll('.kour-permission-check').forEach(c=>c.checked=(u.permissions||[]).includes(c.value));};
- window.kourToggleStaff=async function(encoded,disabled){const out=await post('ADMIN_USER_DISABLE',{username:decodeURIComponent(encoded),disabled});if(out.status==='SUCCESS')loadUsers();else alert(out.message||'Update failed.');};
- window.kourResetStaffForm=function(){document.getElementById('kour-staff-form').reset();document.getElementById('kour-staff-username').readOnly=false;};
- document.getElementById('kour-staff-form').addEventListener('submit',async e=>{e.preventDefault();const data={name:document.getElementById('kour-staff-name').value,username:document.getElementById('kour-staff-username').value,password:document.getElementById('kour-staff-password').value,permissions:Array.from(document.querySelectorAll('.kour-permission-check:checked')).map(c=>c.value)};try{const out=await post('ADMIN_USER_SAVE',data);if(out.status!=='SUCCESS')throw new Error(out.message);window.kourUsers=out.users||[];kourResetStaffForm();await loadUsers();alert('Staff account saved.');}catch(err){alert(err.message||'Could not save account.');}});
- document.addEventListener('DOMContentLoaded',async()=>{
-   const toolbar=document.querySelector('.kour-topbar>div');
-   if(toolbar){const box=document.createElement('div');box.className='flex items-center gap-2';box.innerHTML='<span id="kour-user-label" class="hidden sm:inline text-[10px] text-amber-100"></span><button id="kour-manage-users-btn" class="hidden bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourOpenAccounts()">Staff Access</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourLogout()">Logout</button>';toolbar.appendChild(box);}
-   const ok=await checkSession();
-   if(!ok){
-     showLogin();
-     try{
-       const status=await post('AUTH_STATUS',{});
-       if(status.status==='NO_USERS'){
-         document.getElementById('kour-auth-login').classList.add('hidden');
-         document.getElementById('kour-auth-setup').classList.remove('hidden');
-         message('First-time setup: create the initial Admin account.',false);
-       }
-     }catch(e){message('Cannot reach the Google Sheets backend. Check that the Apps Script Web App is deployed and accessible.');}
-   }
- });
-})();
-</script>
 
 </body></html>`); win.document.close(); win.focus(); setTimeout(()=>{win.print();},700); }
         function exportGatePassCSV(){ const rows=[GATE_PASS_HEADERS]; gatePasses.forEach(x=>rows.push([x.passNo,x.date,x.movement,x.returnStatus,x.item,x.description,x.qty,x.unit,x.orderNo,x.purpose,x.party,x.person,x.vehicle,x.expectedReturn,x.status,x.returnDate,x.receivedQty,x.remarks,x.id])); const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='KOUR_Gate_Pass_Register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500); }
@@ -7767,6 +7670,104 @@ window.addEventListener('resize',()=>{
   const overlay=document.getElementById('kour-sidebar-overlay');
   if(window.innerWidth>850){sb.classList.remove('mobile-open');overlay.classList.remove('show');}
 });
+</script>
+
+<script>
+(function(){
+ const AUTH_TOKEN_KEY='kour_auth_token_v1';
+ const AUTH_USER_KEY='kour_auth_user_v1';
+ const originalFetch=window.fetch.bind(window);
+ let authToken=localStorage.getItem(AUTH_TOKEN_KEY)||'';
+ let currentUser=null;
+ const originalInitAutoSync=window.initKourAutoSync;
+ window.__kourOriginalInitAutoSync=originalInitAutoSync;
+ window.initKourAutoSync=function(){if(authToken && typeof originalInitAutoSync==='function')return originalInitAutoSync();if(typeof stopKourAutoSync==='function')stopKourAutoSync();};
+ const perms=[
+ ['dashboard','Dashboard'],['orders_view','View Orders'],['orders_create','Create Orders'],['orders_edit','Edit Orders'],['orders_delete','Delete Orders'],['costing_view','View Costing / Profit'],['costing_edit','Edit Costing / Profit'],
+ ['samples_view','View Samples'],['samples_create','Create Samples'],['samples_edit','Edit Samples'],['samples_delete','Delete Samples'],['samples_approve','Approve Samples'],
+ ['production_view','View Daily Production'],['production_edit','Edit Daily Production'],['fabric_view','View Fabric Inventory'],['fabric_edit','Manage Fabric Inventory'],
+ ['pattern_view','View Pattern Inventory'],['pattern_edit','Edit Patterns'],['pattern_delete','Delete Patterns'],['gatepass_view','View Gate Pass'],['gatepass_edit','Manage Gate Pass'],
+ ['finance_view','View Finance'],['finance_edit','Manage Finance'],['management_view','Management Dashboard'],['reports_view','Reports'],['packing_view','Packing'],['forms_view','Department Forms']
+ ];
+ function endpoint(url){try{return new URL(typeof url==='string'?url:url.url,location.href).href.split('?')[0]===new URL(syncUrl,location.href).href.split('?')[0]}catch(e){return false}}
+ window.fetch=function(input,init){
+   init=init?Object.assign({},init):{};
+   if(endpoint(input)){
+     let u=typeof input==='string'?input:input.url;
+     const method=String(init.method||'GET').toUpperCase();
+     if(method==='GET'){
+       if(authToken){u+=(u.includes('?')?'&':'?')+'authToken='+encodeURIComponent(authToken);}
+       input=u;
+     }else if(init.body && typeof init.body==='string'){
+       try{const payload=JSON.parse(init.body);if(payload.action!=='LOGIN'&&payload.action!=='LOGIN_SETUP'&&authToken)payload.authToken=authToken;init.body=JSON.stringify(payload);}catch(e){}
+     }
+   }
+   return originalFetch(input,init);
+ };
+ function message(t,isError=true){const el=document.getElementById('kour-auth-message');if(el){el.textContent=t||'';el.className='text-xs mt-4 '+(isError?'text-red-700':'text-emerald-700');}}
+ function showLogin(){document.body.classList.remove('kour-authenticated');document.getElementById('kour-auth-screen').classList.remove('kour-auth-hidden');}
+ function enter(user,token){
+   authToken=token;currentUser=user;localStorage.setItem(AUTH_TOKEN_KEY,token);localStorage.setItem(AUTH_USER_KEY,JSON.stringify(user));
+   document.body.classList.add('kour-authenticated');document.getElementById('kour-auth-screen').classList.add('kour-auth-hidden');
+   const label=document.getElementById('kour-user-label');if(label)label.textContent=(user.name||user.username)+' · '+user.role;
+   const adminBtn=document.getElementById('kour-manage-users-btn');if(adminBtn)adminBtn.classList.toggle('hidden',user.role!=='Admin');
+   if(window.__kourOriginalInitAutoSync)window.__kourOriginalInitAutoSync();
+   if(typeof syncAllKourData==='function')setTimeout(()=>syncAllKourData(),500);
+ }
+ async function post(action,data){
+   const r=await originalFetch(syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},authToken:authToken})});
+   return await r.json();
+ }
+ async function checkSession(){
+   if(!authToken)return false;
+   try{
+     const r=await originalFetch(syncUrl+'?sheet=test&authToken='+encodeURIComponent(authToken)+'&t='+Date.now(),{cache:'no-store'});
+     const out=await r.json();if(out&&out.status==='SUCCESS'){let user={};try{user=JSON.parse(localStorage.getItem(AUTH_USER_KEY)||'{}')}catch(e){}enter(user,authToken);return true;}
+   }catch(e){}
+   authToken='';localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);if(typeof stopKourAutoSync==='function')stopKourAutoSync();return false;
+ }
+ async function login(data,setup){
+   message('Connecting securely to KOUR…',false);
+   try{
+     const out=await post(setup?'LOGIN_SETUP':'LOGIN',data);
+     if(out.status==='NO_USERS'){document.getElementById('kour-auth-login').classList.add('hidden');document.getElementById('kour-auth-setup').classList.remove('hidden');message('No Admin account exists yet. Create the initial Admin account.',false);return;}
+     if(out.status!=='SUCCESS')throw new Error(out.message||'Login failed.');
+     enter(out.user,out.token);message('',false);
+   }catch(e){message(e.message||'Could not connect. Check the Google Apps Script deployment.');}
+ }
+ document.getElementById('kour-login-form').addEventListener('submit',e=>{e.preventDefault();login({username:document.getElementById('kour-login-username').value,password:document.getElementById('kour-login-password').value},false);});
+ document.getElementById('kour-setup-form').addEventListener('submit',e=>{e.preventDefault();login({name:document.getElementById('kour-setup-name').value,username:document.getElementById('kour-setup-username').value,password:document.getElementById('kour-setup-password').value},true);});
+ window.kourLogout=async function(){try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);location.reload();};
+ window.kourOpenAccounts=async function(){if(!currentUser||currentUser.role!=='Admin')return;document.getElementById('kour-account-panel').classList.add('open');renderPermissions();await loadUsers();};
+ window.kourCloseAccounts=()=>document.getElementById('kour-account-panel').classList.remove('open');
+ function renderPermissions(){
+  document.getElementById('kour-permission-list').innerHTML=perms.map(([v,l])=>`<label class="flex items-center gap-2 border rounded-lg p-2 font-medium"><input type="checkbox" value="${v}" class="kour-permission-check"> ${l}</label>`).join('');
+ }
+ async function loadUsers(){
+  try{const out=await post('ADMIN_USERS_GET',{});if(out.status!=='SUCCESS')throw new Error(out.message);document.getElementById('kour-staff-list').innerHTML=(out.users||[]).map(u=>`<div class="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-2"><div><b>${escapeHtml(u.name||u.username)}</b> <span class="text-slate-500">(${escapeHtml(u.username)}) · ${u.role}${u.disabled?' · DISABLED':''}</span><div class="text-slate-500">${(u.permissions||[]).length} permissions</div></div>${u.role==='Staff'?`<div class="flex gap-2"><button class="border rounded px-2 py-1" onclick="kourEditStaff('${encodeURIComponent(u.username)}')">Edit</button><button class="border rounded px-2 py-1" onclick="kourToggleStaff('${encodeURIComponent(u.username)}',${!u.disabled})">${u.disabled?'Enable':'Disable'}</button></div>`:''}</div>`).join('')||'No accounts yet.';window.kourUsers=out.users||[];}catch(e){alert(e.message||'Could not load users.');}
+ }
+ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ window.kourEditStaff=function(encoded){const u=(window.kourUsers||[]).find(x=>x.username===decodeURIComponent(encoded));if(!u)return;document.getElementById('kour-staff-name').value=u.name||'';document.getElementById('kour-staff-username').value=u.username;document.getElementById('kour-staff-username').readOnly=true;document.getElementById('kour-staff-password').value='';document.querySelectorAll('.kour-permission-check').forEach(c=>c.checked=(u.permissions||[]).includes(c.value));};
+ window.kourToggleStaff=async function(encoded,disabled){const out=await post('ADMIN_USER_DISABLE',{username:decodeURIComponent(encoded),disabled});if(out.status==='SUCCESS')loadUsers();else alert(out.message||'Update failed.');};
+ window.kourResetStaffForm=function(){document.getElementById('kour-staff-form').reset();document.getElementById('kour-staff-username').readOnly=false;};
+ document.getElementById('kour-staff-form').addEventListener('submit',async e=>{e.preventDefault();const data={name:document.getElementById('kour-staff-name').value,username:document.getElementById('kour-staff-username').value,password:document.getElementById('kour-staff-password').value,permissions:Array.from(document.querySelectorAll('.kour-permission-check:checked')).map(c=>c.value)};try{const out=await post('ADMIN_USER_SAVE',data);if(out.status!=='SUCCESS')throw new Error(out.message);window.kourUsers=out.users||[];kourResetStaffForm();await loadUsers();alert('Staff account saved.');}catch(err){alert(err.message||'Could not save account.');}});
+ document.addEventListener('DOMContentLoaded',async()=>{
+   const toolbar=document.querySelector('.kour-topbar>div');
+   if(toolbar){const box=document.createElement('div');box.className='flex items-center gap-2';box.innerHTML='<span id="kour-user-label" class="hidden sm:inline text-[10px] text-amber-100"></span><button id="kour-manage-users-btn" class="hidden bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourOpenAccounts()">Staff Access</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourLogout()">Logout</button>';toolbar.appendChild(box);}
+   const ok=await checkSession();
+   if(!ok){
+     showLogin();
+     try{
+       const status=await post('AUTH_STATUS',{});
+       if(status.status==='NO_USERS'){
+         document.getElementById('kour-auth-login').classList.add('hidden');
+         document.getElementById('kour-auth-setup').classList.remove('hidden');
+         message('First-time setup: create the initial Admin account.',false);
+       }
+     }catch(e){message('Cannot reach the Google Sheets backend. Check that the Apps Script Web App is deployed and accessible.');}
+   }
+ });
+})();
 </script>
 </body>
 </html>
