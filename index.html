@@ -7692,11 +7692,26 @@ window.addEventListener('resize',()=>{
  ['finance_view','View Finance'],['finance_edit','Manage Finance'],['management_view','Management Dashboard'],['reports_view','Reports'],['packing_view','Packing'],['forms_view','Department Forms']
  ];
  function endpoint(url){try{return new URL(typeof url==='string'?url:url.url,location.href).href.split('?')[0]===new URL(syncUrl,location.href).href.split('?')[0]}catch(e){return false}}
+ function kourPermissionForAction(action,data){
+   const map={UPSERT:['orders_create','orders_edit'],UPDATE:['orders_edit'],DELETE:['orders_delete'],COSTING_SAVE:['costing_edit'],UPSERT_SAMPLE:['samples_create','samples_edit'],DELETE_SAMPLE:['samples_delete'],APPROVE_SAMPLE:['samples_approve'],UPSERT_PRODUCTION:['production_edit'],DELETE_PRODUCTION:['production_edit'],SAVE_FABRIC:['fabric_edit'],UPSERT_FABRIC:['fabric_edit'],UPDATE_FABRIC:['fabric_edit'],DELETE_FABRIC:['fabric_edit'],UPSERT_PATTERN:['pattern_edit'],DELETE_PATTERN:['pattern_delete'],MOBILE_UPDATE_PATTERN:['pattern_edit'],UPSERT_SAMPLE_INVENTORY:['samples_edit'],DELETE_SAMPLE_INVENTORY:['samples_delete'],UPSERT_GATE_PASS:['gatepass_edit'],DELETE_GATE_PASS:['gatepass_edit'],UPSERT_FINANCE:['finance_edit'],DELETE_FINANCE:['finance_edit']};
+   if(String(action).toUpperCase()==='UPSERT_SAMPLE' && /approv/i.test(String((data||{}).status||'')))return ['samples_approve'];
+   return map[String(action||'').toUpperCase()]||['dashboard'];
+ }
+ function kourPermissionForSheet(sheet){const map={orders:'orders_view',ordercosting:'costing_view','order-costing':'costing_view',costing:'costing_view',samples:'samples_view',production:'production_view',fabric:'fabric_view',fabricinventory:'fabric_view',fabric_inventory:'fabric_view',patterninventory:'pattern_view','pattern-inventory':'pattern_view',pattern_inventory:'pattern_view',sampleinventory:'samples_view','sample-inventory':'samples_view',sample_inventory:'samples_view',gatepass:'gatepass_view','gate-pass':'gatepass_view',gate_pass:'gatepass_view',finance:'finance_view',pettycash:'finance_view','petty-cash':'finance_view',test:'dashboard'};return map[String(sheet||'orders').toLowerCase()]||'dashboard';}
+ function kourShowPermissionDenied(required){const names=required.map(p=>p.replace(/_/g,' ')).join(' or ');alert('PERMISSION DENIED\n\nYou do not have permission to perform this action.\nRequired access: '+names+'.\n\nPlease contact your Admin if you need access.');}
  window.fetch=function(input,init){
    init=init?Object.assign({},init):{};
    if(endpoint(input)){
      let u=typeof input==='string'?input:input.url;
      const method=String(init.method||'GET').toUpperCase();
+     if(currentUser && currentUser.role!=='Admin'){
+       let required=null;
+       if(method==='GET')required=[kourPermissionForSheet(new URL(u,location.href).searchParams.get('sheet')||'orders')];
+       else if(init.body && typeof init.body==='string'){
+         try{const payload=JSON.parse(init.body);if(payload.action && !['LOGIN','LOGIN_SETUP','AUTH_STATUS','LOGOUT'].includes(payload.action) && !String(payload.action).startsWith('ADMIN_'))required=kourPermissionForAction(payload.action,payload.data);}catch(e){}
+       }
+       if(required && !required.some(p=>(currentUser.permissions||[]).includes(p))){kourShowPermissionDenied(required);return Promise.resolve(new Response(JSON.stringify({status:'ERROR',message:'Access denied. Missing permission: '+required.join(' or ')}),{status:403,headers:{'Content-Type':'application/json'}}));}
+     }
      if(method==='GET'){
        if(authToken){u+=(u.includes('?')?'&':'?')+'authToken='+encodeURIComponent(authToken);}
        input=u;
