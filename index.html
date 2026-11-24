@@ -7699,9 +7699,7 @@ window.addEventListener('resize',()=>{
    const labels={orders_create:'create orders',orders_edit:'edit orders',orders_delete:'delete orders',samples_create:'create samples',samples_edit:'edit samples',samples_delete:'delete samples',samples_approve:'approve samples',costing_edit:'edit costing',production_edit:'edit production',fabric_edit:'manage fabric inventory',pattern_edit:'edit patterns',pattern_delete:'delete patterns',gatepass_edit:'manage gate passes',finance_edit:'manage finance'};
    const label=required.map(p=>labels[p]||p).join(' or ');
    alert('Permission denied: your account does not have permission to '+label+'. No changes were saved. Please contact your Admin.');
-   // The dashboard uses optimistic UI in some forms. Reload after blocking the
-   // request so any unsaved in-memory display change is discarded as well.
-   setTimeout(()=>location.reload(),0);
+   // Block the write in place. Do not reload or navigate the dashboard.
    return false;
  }
  const perms=[
