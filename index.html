@@ -3973,45 +3973,6 @@ function testFabricInventory() {
 })();
 <\/script>
 
-<div id="kour-auth-screen">
-  <div id="kour-auth-card">
-    <div class="flex items-center gap-3 mb-5"><div class="w-11 h-11 rounded-xl bg-amber-600 text-slate-950 grid place-items-center font-black text-xl">K</div><div><div class="font-black text-xl text-slate-900">KOUR Dashboard</div><div class="text-[10px] uppercase tracking-widest text-slate-500">Secure Production Workspace</div></div></div>
-    <div id="kour-auth-login">
-      <h2 class="text-lg font-black text-slate-900">Sign in</h2><p class="text-xs text-slate-500 mt-1">Use your company username and password.</p>
-      <form id="kour-login-form">
-        <label>Username<input id="kour-login-username" autocomplete="username" required></label>
-        <label>Password<input id="kour-login-password" type="password" autocomplete="current-password" required></label>
-        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Login to Dashboard</button>
-      </form>
-    </div>
-    <div id="kour-auth-setup" class="hidden">
-      <h2 class="text-lg font-black text-slate-900">Create Initial Admin</h2><p class="text-xs text-slate-500 mt-1">First-time setup. Create the owner account to manage Staff access.</p>
-      <form id="kour-setup-form">
-        <label>Admin Name<input id="kour-setup-name" required></label>
-        <label>Username<input id="kour-setup-username" autocomplete="username" required></label>
-        <label>Password (minimum 12 characters)<input id="kour-setup-password" type="password" autocomplete="new-password" minlength="12" required></label>
-        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Create Admin Account</button>
-      </form>
-    </div>
-    <div id="kour-auth-message" class="text-xs text-red-700 mt-4" role="status"></div>
-  </div>
-</div>
-<div id="kour-account-panel">
- <div class="panel">
-  <div class="flex items-center justify-between gap-3 border-b pb-3"><div><h2 class="font-black text-lg">Staff Accounts & Permissions</h2><p class="text-xs text-slate-500">Admin can grant or remove access for each dashboard action.</p></div><button onclick="kourCloseAccounts()" class="px-3 py-2 rounded-lg border text-sm">Close</button></div>
-  <form id="kour-staff-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
-   <label class="text-xs font-bold">Staff Name<input id="kour-staff-name" class="w-full border rounded-lg p-2 mt-1" required></label>
-   <label class="text-xs font-bold">Username<input id="kour-staff-username" class="w-full border rounded-lg p-2 mt-1" required></label>
-   <label class="text-xs font-bold sm:col-span-2">Password (leave blank when editing)<input id="kour-staff-password" type="password" class="w-full border rounded-lg p-2 mt-1" autocomplete="new-password"></label>
-   <div class="sm:col-span-2"><div class="text-xs font-black mb-2">Permissions</div><div id="kour-permission-list" class="kour-perm-grid"></div></div>
-   <div class="sm:col-span-2 flex gap-2"><button class="bg-amber-600 text-slate-950 rounded-lg px-4 py-2 text-xs font-black" type="submit">Save Staff Account</button><button type="button" onclick="kourResetStaffForm()" class="border rounded-lg px-4 py-2 text-xs">Clear</button></div>
-  </form>
-  <div class="border-t pt-3"><div class="text-xs font-black mb-2">Existing accounts</div><div id="kour-staff-list" class="space-y-2 text-xs"></div></div>
- </div>
-</div>
-
-
-
 </body></html>`); win.document.close(); win.focus(); setTimeout(()=>{win.print();},700); }
         function exportGatePassCSV(){ const rows=[GATE_PASS_HEADERS]; gatePasses.forEach(x=>rows.push([x.passNo,x.date,x.movement,x.returnStatus,x.item,x.description,x.qty,x.unit,x.orderNo,x.purpose,x.party,x.person,x.vehicle,x.expectedReturn,x.status,x.returnDate,x.receivedQty,x.remarks,x.id])); const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='KOUR_Gate_Pass_Register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500); }
         loadGatePassesLocal(); updateGatePassStorageInfo(); resetGatePassForm();
@@ -7769,5 +7730,45 @@ window.addEventListener('resize',()=>{
  });
 })();
 </script>
+<div id="kour-auth-screen">
+  <div id="kour-auth-card">
+    <div class="flex items-center gap-3 mb-5"><div class="w-11 h-11 rounded-xl bg-amber-600 text-slate-950 grid place-items-center font-black text-xl">K</div><div><div class="font-black text-xl text-slate-900">KOUR Dashboard</div><div class="text-[10px] uppercase tracking-widest text-slate-500">Secure Production Workspace</div></div></div>
+    <div id="kour-auth-login">
+      <h2 class="text-lg font-black text-slate-900">Sign in</h2><p class="text-xs text-slate-500 mt-1">Use your company username and password.</p>
+      <form id="kour-login-form">
+        <label>Username<input id="kour-login-username" autocomplete="username" required></label>
+        <label>Password<input id="kour-login-password" type="password" autocomplete="current-password" required></label>
+        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Login to Dashboard</button>
+      </form>
+    </div>
+    <div id="kour-auth-setup" class="hidden">
+      <h2 class="text-lg font-black text-slate-900">Create Initial Admin</h2><p class="text-xs text-slate-500 mt-1">First-time setup. Create the owner account to manage Staff access.</p>
+      <form id="kour-setup-form">
+        <label>Admin Name<input id="kour-setup-name" required></label>
+        <label>Username<input id="kour-setup-username" autocomplete="username" required></label>
+        <label>Password (minimum 12 characters)<input id="kour-setup-password" type="password" autocomplete="new-password" minlength="12" required></label>
+        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Create Admin Account</button>
+      </form>
+    </div>
+    <div id="kour-auth-message" class="text-xs text-red-700 mt-4" role="status"></div>
+  </div>
+</div>
+<div id="kour-account-panel">
+ <div class="panel">
+  <div class="flex items-center justify-between gap-3 border-b pb-3"><div><h2 class="font-black text-lg">Staff Accounts & Permissions</h2><p class="text-xs text-slate-500">Admin can grant or remove access for each dashboard action.</p></div><button onclick="kourCloseAccounts()" class="px-3 py-2 rounded-lg border text-sm">Close</button></div>
+  <form id="kour-staff-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+   <label class="text-xs font-bold">Staff Name<input id="kour-staff-name" class="w-full border rounded-lg p-2 mt-1" required></label>
+   <label class="text-xs font-bold">Username<input id="kour-staff-username" class="w-full border rounded-lg p-2 mt-1" required></label>
+   <label class="text-xs font-bold sm:col-span-2">Password (leave blank when editing)<input id="kour-staff-password" type="password" class="w-full border rounded-lg p-2 mt-1" autocomplete="new-password"></label>
+   <div class="sm:col-span-2"><div class="text-xs font-black mb-2">Permissions</div><div id="kour-permission-list" class="kour-perm-grid"></div></div>
+   <div class="sm:col-span-2 flex gap-2"><button class="bg-amber-600 text-slate-950 rounded-lg px-4 py-2 text-xs font-black" type="submit">Save Staff Account</button><button type="button" onclick="kourResetStaffForm()" class="border rounded-lg px-4 py-2 text-xs">Clear</button></div>
+  </form>
+  <div class="border-t pt-3"><div class="text-xs font-black mb-2">Existing accounts</div><div id="kour-staff-list" class="space-y-2 text-xs"></div></div>
+ </div>
+</div>
+
+
+
+
 </body>
 </html>
