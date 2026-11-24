@@ -193,17 +193,6 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
         #section-daily-production #daily-order-search { display:block !important; visibility:visible !important; opacity:1 !important; }
         #section-daily-production #daily-order-search::placeholder { color:#991b1b; opacity:.75; }
 
-
-/* Test dashboard header layout: keep auth controls in the normal flex flow. */
-.kour-topbar{height:auto!important;min-height:72px}
-.kour-topbar>div{height:auto!important;min-height:72px;gap:10px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
-.kour-topbar>div>.flex.items-center.space-x-3.min-w-0{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.kour-auth-header-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-#kour-auth-admin,#kour-auth-logout{position:static!important;align-items:center;justify-content:center;white-space:nowrap;flex:0 0 auto;margin:0}
-#kour-auth-admin{border:0;border-radius:9px;padding:8px 12px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:700}
-#kour-auth-logout{border:0;border-radius:9px;padding:8px 12px;background:#0f172a;color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 10px #0002}
-@media(max-width:900px){.kour-topbar>div{align-items:flex-start}.kour-topbar>div>.flex.items-center.space-x-3.min-w-0{justify-content:flex-start}}
-@media(max-width:600px){.kour-topbar{overflow:visible!important}.kour-topbar>div{align-items:flex-start;gap:8px}.kour-topbar>div>.flex.items-center.space-x-3.min-w-0{width:100%;justify-content:flex-start}.kour-auth-header-actions{flex-wrap:wrap}}
 </style>
 <style>
 .fi-label{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:5px}
@@ -212,96 +201,22 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
 .fi-step{display:flex;align-items:center;gap:8px;color:#0f172a}.fi-step span{width:26px;height:26px;border-radius:8px;background:#991b1b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:900}.fi-step b{font-size:12px}.fi-step em{font-style:normal;font-size:9px;color:#94a3b8;margin-left:2px}.fi-upload{border:1px dashed #cbd5e1;border-radius:14px;padding:12px;background:#f8fafc}.fi-flow-no{width:25px;height:25px;border-radius:50%;background:#fef2f2;color:#991b1b;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex:none}
 </style>
 
-<style id="kour-mobile-ux-refresh">
-/* Mobile-only usability refresh. Desktop styles remain untouched. */
-@media (max-width: 640px) {
-  html, body { width:100%; max-width:100%; overflow-x:hidden; -webkit-text-size-adjust:100%; }
-  body { padding-bottom:env(safe-area-inset-bottom); }
-  .kour-topbar { min-height:58px!important; height:auto!important; position:sticky!important; top:0; z-index:35; }
-  .kour-topbar>div { display:flex!important; flex-wrap:wrap!important; align-items:center!important; gap:8px!important; padding:10px 12px!important; }
-  .kour-topbar h1 { font-size:16px!important; line-height:1.2!important; }
-  .kour-topbar button { min-height:40px!important; padding:9px 11px!important; font-size:11px!important; white-space:normal!important; }
-  .kour-topbar p { display:block!important; font-size:9px!important; line-height:1.2!important; margin-top:2px!important; }
-  .kour-content { padding:12px 10px!important; }
-  .kour-sidebar-toggle { top:72px!important; left:10px!important; width:42px!important; height:42px!important; z-index:65!important; }
-  .kour-sidebar { width:min(280px,84vw)!important; max-width:84vw!important; z-index:60!important; }
-  .kour-sidebar.mobile-open { transform:translateX(0)!important; }
-  .kour-sidebar-overlay { z-index:55!important; }
-  .kour-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:9px!important; }
-  .kour-kpi { min-height:80px!important; padding:12px!important; border-radius:12px!important; }
-  .kour-kpi .num { font-size:20px!important; }
-  .kour-phase-grid { grid-template-columns:1fr!important; gap:10px!important; }
-  .kour-phase-card,.kour-orders-panel,.kour-activity-panel,.kour-pipeline-card { padding:12px!important; border-radius:12px!important; }
-  .kour-filter-row { grid-template-columns:1fr!important; gap:8px!important; }
-  input, select, textarea { font-size:16px!important; }
-  button, [role="button"] { touch-action:manipulation; }
-  button:not(.kour-link-btn) { min-height:38px; }
-  .overflow-x-auto, .kour-phase-table-wrap, #fabric-table-view { max-width:100%; overflow-x:auto!important; -webkit-overflow-scrolling:touch; }
-  table { max-width:none; }
-  .kour-phase-table { min-width:640px!important; }
-  .kour-calendar { grid-template-columns:repeat(7,minmax(105px,1fr))!important; overflow-x:auto!important; -webkit-overflow-scrolling:touch; }
-  .kour-section-toolbar { gap:8px!important; flex-wrap:wrap!important; }
-  .kour-hero-copy { padding:18px 14px!important; }
-  .kour-hero-copy .kour-dash-title { font-size:24px!important; line-height:1.15!important; }
-  .kour-hero-actions { flex-direction:row!important; flex-wrap:wrap!important; }
-  .modal, [id$="modal"] { max-width:100vw; }
-}
-@media (max-width: 390px) {
-  .kour-kpi-grid { grid-template-columns:1fr!important; }
-  .kour-topbar h1 { font-size:14px!important; }
-  .kour-topbar button { flex:1 1 auto; }
-}
-</style>
-
-
-<style id="kour-auth-phase2-styles">
-#kour-auth-gate{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 55%,#334155 100%);font-family:inherit}
-#kour-auth-gate .auth-card{width:min(100%,420px);background:#fff;border-radius:22px;padding:28px;box-shadow:0 24px 80px #0006}
-#kour-auth-gate .auth-brand{font-weight:900;font-size:22px;color:#0f172a;text-align:center}
-#kour-auth-gate .auth-sub{color:#64748b;text-align:center;font-size:13px;margin:5px 0 24px}
-#kour-auth-gate label{display:block;font-size:12px;font-weight:700;color:#334155;margin:13px 0 6px}
-#kour-auth-gate input{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:12px;font-size:16px;outline:none}
-#kour-auth-gate input:focus{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb20}
-#kour-auth-gate button{width:100%;border:0;border-radius:10px;padding:12px;margin-top:16px;background:#1d4ed8;color:white;font-weight:800;cursor:pointer}
-#kour-auth-gate button:disabled{opacity:.55;cursor:wait}
-#kour-auth-gate .auth-secondary{background:#e2e8f0;color:#0f172a;margin-top:9px}
-#kour-auth-gate .auth-msg{min-height:20px;font-size:12px;color:#b91c1c;margin-top:12px;text-align:center;white-space:pre-wrap}
-#kour-auth-gate .auth-note{font-size:11px;color:#64748b;line-height:1.5;margin-top:16px;text-align:center}
-#kour-auth-gate .auth-switch{display:block;text-align:center;font-size:12px;color:#1d4ed8;text-decoration:underline;margin-top:16px;cursor:pointer}
-#kour-auth-logout{position:fixed;right:14px;top:14px;z-index:1000000;border:0;border-radius:9px;padding:8px 12px;background:#0f172a;color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 10px #0002}
-@media(max-width:600px){#kour-auth-gate{padding:14px}#kour-auth-gate .auth-card{padding:22px 18px;border-radius:18px}}
-#kour-auth-admin{right:94px}@media(max-width:600px){#kour-auth-admin{right:88px;top:54px}#kour-auth-logout{top:54px}}
-.kour-perm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin:10px 0}.kour-perm-grid label{display:flex;gap:7px;align-items:center;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:7px}.kour-user-card{border:1px solid #cbd5e1;border-radius:12px;padding:13px}.kour-user-card button{border:0;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700}
+<style>
+#kour-auth-screen{position:fixed;inset:0;z-index:100000;background:linear-gradient(135deg,#241018,#4b1725 55%,#171717);display:flex;align-items:center;justify-content:center;padding:18px}
+#kour-auth-card{width:min(100%,420px);background:#fff;border-radius:22px;padding:28px;box-shadow:0 25px 80px #0006}
+#kour-auth-screen input{width:100%;border:1px solid #d6d3d1;border-radius:10px;padding:12px;margin-top:6px;font-size:14px}
+#kour-auth-screen label{display:block;font-size:11px;font-weight:800;color:#57534e;margin-top:13px}
+.kour-auth-hidden{display:none!important}
+body:not(.kour-authenticated) #kour-sidebar,body:not(.kour-authenticated) #kour-sidebar-toggle,body:not(.kour-authenticated) #kour-sidebar-overlay,body:not(.kour-authenticated) .kour-topbar,body:not(.kour-authenticated) .kour-main{display:none!important}
+#kour-account-panel{position:fixed;inset:0;z-index:99990;background:#11182799;display:none;align-items:center;justify-content:center;padding:14px}
+#kour-account-panel.open{display:flex}
+#kour-account-panel .panel{background:#fff;width:min(100%,760px);max-height:92vh;overflow:auto;border-radius:18px;padding:20px}
+.kour-perm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:520px){#kour-auth-card{padding:22px}.kour-perm-grid{grid-template-columns:1fr}}
 </style>
 
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
-
-<div id="kour-auth-gate" role="dialog" aria-modal="true" aria-labelledby="kour-auth-title">
- <div class="auth-card">
-  <div class="auth-brand" id="kour-auth-title">KOUR Dashboard</div>
-  <div class="auth-sub">Sign in to your production workspace</div>
-  <form id="kour-auth-login-form">
-   <label for="kour-auth-username">Username</label><input id="kour-auth-username" name="username" autocomplete="username" required>
-   <label for="kour-auth-password">Password</label><input id="kour-auth-password" name="password" type="password" autocomplete="current-password" required>
-   <button id="kour-auth-login-btn" type="submit">Login</button>
-  </form>
-  <div id="kour-auth-message" class="auth-msg" aria-live="polite"></div>
-  <span id="kour-auth-first-admin-link" class="auth-switch">First time? Create the initial Admin account</span>
-  <div class="auth-note">Your account permissions are checked by the Google Apps Script backend. Do not share your password.</div>
- </div>
-</div>
-
-<div id="kour-auth-admin-panel" style="display:none;position:fixed;inset:0;z-index:2147482500;background:#0f172a99;padding:14px;overflow:auto">
- <section style="max-width:980px;margin:3vh auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0005">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><h2 style="font-size:20px;font-weight:800;margin:0">Staff & Permissions</h2><button id="kour-auth-admin-close" type="button" style="border:0;border-radius:8px;padding:8px 12px;background:#e2e8f0">Close</button></div>
-  <p style="font-size:12px;color:#64748b;margin:8px 0 16px">Create staff accounts, assign individual permissions, and activate or deactivate accounts.</p>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button id="kour-auth-add-staff" type="button" style="background:#1d4ed8;color:#fff;border:0;border-radius:8px;padding:9px 13px;font-weight:700">+ Create Staff Account</button><button id="kour-auth-refresh-users" type="button" style="background:#e2e8f0;border:0;border-radius:8px;padding:9px 13px">Refresh list</button></div>
-  <div id="kour-auth-admin-status" role="status" style="font-size:12px;margin:8px 0;color:#475569"></div>
-  <div id="kour-auth-users-list" style="display:grid;gap:12px"></div>
- </section>
-</div>
-
 
 <aside class="kour-sidebar no-print" id="kour-sidebar">
   <div class="kour-brand"><div class="flex items-center gap-3"><div class="kour-mark"><i class="fa-solid fa-shirt"></i></div><div class="kour-brand-copy"><div class="text-white font-black tracking-wide text-lg">Apparel Operations</div><div class="text-[9px] uppercase tracking-[.16em] text-slate-500">Production Control</div></div></div></div>
@@ -348,10 +263,6 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
                 <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg shadow-md flex items-center gap-2 transition">
                     <i class="fa-solid fa-plus"></i> New Order
                 </button>
-                <div id="kour-auth-header-actions" class="kour-auth-header-actions">
-                    <button id="kour-auth-admin" type="button" style="display:none">Staff Admin</button>
-                    <button id="kour-auth-logout" type="button" style="display:none">Logout</button>
-                </div>
             </div>
         </div>
     </header>
@@ -3609,7 +3520,7 @@ function testFabricInventory() {
 
         let dateFormat = localStorage.getItem('apparel_date_format') || "DD/MM/YYYY";
         // Shared company backend: embedded so staff only need the GitHub Pages website URL.
-        const KOUR_SHARED_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyYARG5W5gbGBnnVHqBH4EpFlzsrVxr_PePyFm4qm0zYbuQokW-FZcJayDMd3isXT8h/exec";
+        const KOUR_SHARED_GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvk4UC3erI5OXPY2v6SJbdaMfT3DsbPAHtJEkSduHkyCSTbVmcgLyR9aNAyDi8SriU/exec";
         let syncUrl = KOUR_SHARED_GAS_WEB_APP_URL;
         try { localStorage.setItem('apparel_gas_url', KOUR_SHARED_GAS_WEB_APP_URL); } catch (e) {}
         let monthlyChartInstance = null;
@@ -4062,7 +3973,141 @@ function testFabricInventory() {
 })();
 <\/script>
 
+<div id="kour-auth-screen">
+  <div id="kour-auth-card">
+    <div class="flex items-center gap-3 mb-5"><div class="w-11 h-11 rounded-xl bg-amber-600 text-slate-950 grid place-items-center font-black text-xl">K</div><div><div class="font-black text-xl text-slate-900">KOUR Dashboard</div><div class="text-[10px] uppercase tracking-widest text-slate-500">Secure Production Workspace</div></div></div>
+    <div id="kour-auth-login">
+      <h2 class="text-lg font-black text-slate-900">Sign in</h2><p class="text-xs text-slate-500 mt-1">Use your company username and password.</p>
+      <form id="kour-login-form">
+        <label>Username<input id="kour-login-username" autocomplete="username" required></label>
+        <label>Password<input id="kour-login-password" type="password" autocomplete="current-password" required></label>
+        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Login to Dashboard</button>
+      </form>
+    </div>
+    <div id="kour-auth-setup" class="hidden">
+      <h2 class="text-lg font-black text-slate-900">Create Initial Admin</h2><p class="text-xs text-slate-500 mt-1">First-time setup. Create the owner account to manage Staff access.</p>
+      <form id="kour-setup-form">
+        <label>Admin Name<input id="kour-setup-name" required></label>
+        <label>Username<input id="kour-setup-username" autocomplete="username" required></label>
+        <label>Password (minimum 12 characters)<input id="kour-setup-password" type="password" autocomplete="new-password" minlength="12" required></label>
+        <button class="w-full mt-5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black py-3 text-sm" type="submit">Create Admin Account</button>
+      </form>
+    </div>
+    <div id="kour-auth-message" class="text-xs text-red-700 mt-4" role="status"></div>
+  </div>
+</div>
+<div id="kour-account-panel">
+ <div class="panel">
+  <div class="flex items-center justify-between gap-3 border-b pb-3"><div><h2 class="font-black text-lg">Staff Accounts & Permissions</h2><p class="text-xs text-slate-500">Admin can grant or remove access for each dashboard action.</p></div><button onclick="kourCloseAccounts()" class="px-3 py-2 rounded-lg border text-sm">Close</button></div>
+  <form id="kour-staff-form" class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-4">
+   <label class="text-xs font-bold">Staff Name<input id="kour-staff-name" class="w-full border rounded-lg p-2 mt-1" required></label>
+   <label class="text-xs font-bold">Username<input id="kour-staff-username" class="w-full border rounded-lg p-2 mt-1" required></label>
+   <label class="text-xs font-bold sm:col-span-2">Password (leave blank when editing)<input id="kour-staff-password" type="password" class="w-full border rounded-lg p-2 mt-1" autocomplete="new-password"></label>
+   <div class="sm:col-span-2"><div class="text-xs font-black mb-2">Permissions</div><div id="kour-permission-list" class="kour-perm-grid"></div></div>
+   <div class="sm:col-span-2 flex gap-2"><button class="bg-amber-600 text-slate-950 rounded-lg px-4 py-2 text-xs font-black" type="submit">Save Staff Account</button><button type="button" onclick="kourResetStaffForm()" class="border rounded-lg px-4 py-2 text-xs">Clear</button></div>
+  </form>
+  <div class="border-t pt-3"><div class="text-xs font-black mb-2">Existing accounts</div><div id="kour-staff-list" class="space-y-2 text-xs"></div></div>
+ </div>
+</div>
 
+
+<script>
+(function(){
+ const AUTH_TOKEN_KEY='kour_auth_token_v1';
+ const AUTH_USER_KEY='kour_auth_user_v1';
+ const originalFetch=window.fetch.bind(window);
+ let authToken=localStorage.getItem(AUTH_TOKEN_KEY)||'';
+ let currentUser=null;
+ const originalInitAutoSync=window.initKourAutoSync;
+ window.__kourOriginalInitAutoSync=originalInitAutoSync;
+ window.initKourAutoSync=function(){if(authToken && typeof originalInitAutoSync==='function')return originalInitAutoSync();if(typeof stopKourAutoSync==='function')stopKourAutoSync();};
+ const perms=[
+ ['dashboard','Dashboard'],['orders_view','View Orders'],['orders_create','Create Orders'],['orders_edit','Edit Orders'],['orders_delete','Delete Orders'],['costing_view','View Costing / Profit'],['costing_edit','Edit Costing / Profit'],
+ ['samples_view','View Samples'],['samples_create','Create Samples'],['samples_edit','Edit Samples'],['samples_delete','Delete Samples'],['samples_approve','Approve Samples'],
+ ['production_view','View Daily Production'],['production_edit','Edit Daily Production'],['fabric_view','View Fabric Inventory'],['fabric_edit','Manage Fabric Inventory'],
+ ['pattern_view','View Pattern Inventory'],['pattern_edit','Edit Patterns'],['pattern_delete','Delete Patterns'],['gatepass_view','View Gate Pass'],['gatepass_edit','Manage Gate Pass'],
+ ['finance_view','View Finance'],['finance_edit','Manage Finance'],['management_view','Management Dashboard'],['reports_view','Reports'],['packing_view','Packing'],['forms_view','Department Forms']
+ ];
+ function endpoint(url){try{return new URL(typeof url==='string'?url:url.url,location.href).href.split('?')[0]===new URL(syncUrl,location.href).href.split('?')[0]}catch(e){return false}}
+ window.fetch=function(input,init){
+   init=init?Object.assign({},init):{};
+   if(endpoint(input)){
+     let u=typeof input==='string'?input:input.url;
+     const method=String(init.method||'GET').toUpperCase();
+     if(method==='GET'){
+       if(authToken){u+=(u.includes('?')?'&':'?')+'authToken='+encodeURIComponent(authToken);}
+       input=u;
+     }else if(init.body && typeof init.body==='string'){
+       try{const payload=JSON.parse(init.body);if(payload.action!=='LOGIN'&&payload.action!=='LOGIN_SETUP'&&authToken)payload.authToken=authToken;init.body=JSON.stringify(payload);}catch(e){}
+     }
+   }
+   return originalFetch(input,init);
+ };
+ function message(t,isError=true){const el=document.getElementById('kour-auth-message');if(el){el.textContent=t||'';el.className='text-xs mt-4 '+(isError?'text-red-700':'text-emerald-700');}}
+ function showLogin(){document.body.classList.remove('kour-authenticated');document.getElementById('kour-auth-screen').classList.remove('kour-auth-hidden');}
+ function enter(user,token){
+   authToken=token;currentUser=user;localStorage.setItem(AUTH_TOKEN_KEY,token);localStorage.setItem(AUTH_USER_KEY,JSON.stringify(user));
+   document.body.classList.add('kour-authenticated');document.getElementById('kour-auth-screen').classList.add('kour-auth-hidden');
+   const label=document.getElementById('kour-user-label');if(label)label.textContent=(user.name||user.username)+' · '+user.role;
+   const adminBtn=document.getElementById('kour-manage-users-btn');if(adminBtn)adminBtn.classList.toggle('hidden',user.role!=='Admin');
+   if(window.__kourOriginalInitAutoSync)window.__kourOriginalInitAutoSync();
+   if(typeof syncAllKourData==='function')setTimeout(()=>syncAllKourData(),500);
+ }
+ async function post(action,data){
+   const r=await originalFetch(syncUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},authToken:authToken})});
+   return await r.json();
+ }
+ async function checkSession(){
+   if(!authToken)return false;
+   try{
+     const r=await originalFetch(syncUrl+'?sheet=test&authToken='+encodeURIComponent(authToken)+'&t='+Date.now(),{cache:'no-store'});
+     const out=await r.json();if(out&&out.status==='SUCCESS'){let user={};try{user=JSON.parse(localStorage.getItem(AUTH_USER_KEY)||'{}')}catch(e){}enter(user,authToken);return true;}
+   }catch(e){}
+   authToken='';localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);if(typeof stopKourAutoSync==='function')stopKourAutoSync();return false;
+ }
+ async function login(data,setup){
+   message('Connecting securely to KOUR…',false);
+   try{
+     const out=await post(setup?'LOGIN_SETUP':'LOGIN',data);
+     if(out.status==='NO_USERS'){document.getElementById('kour-auth-login').classList.add('hidden');document.getElementById('kour-auth-setup').classList.remove('hidden');message('No Admin account exists yet. Create the initial Admin account.',false);return;}
+     if(out.status!=='SUCCESS')throw new Error(out.message||'Login failed.');
+     enter(out.user,out.token);message('',false);
+   }catch(e){message(e.message||'Could not connect. Check the Google Apps Script deployment.');}
+ }
+ document.getElementById('kour-login-form').addEventListener('submit',e=>{e.preventDefault();login({username:document.getElementById('kour-login-username').value,password:document.getElementById('kour-login-password').value},false);});
+ document.getElementById('kour-setup-form').addEventListener('submit',e=>{e.preventDefault();login({name:document.getElementById('kour-setup-name').value,username:document.getElementById('kour-setup-username').value,password:document.getElementById('kour-setup-password').value},true);});
+ window.kourLogout=async function(){try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);location.reload();};
+ window.kourOpenAccounts=async function(){if(!currentUser||currentUser.role!=='Admin')return;document.getElementById('kour-account-panel').classList.add('open');renderPermissions();await loadUsers();};
+ window.kourCloseAccounts=()=>document.getElementById('kour-account-panel').classList.remove('open');
+ function renderPermissions(){
+  document.getElementById('kour-permission-list').innerHTML=perms.map(([v,l])=>`<label class="flex items-center gap-2 border rounded-lg p-2 font-medium"><input type="checkbox" value="${v}" class="kour-permission-check"> ${l}</label>`).join('');
+ }
+ async function loadUsers(){
+  try{const out=await post('ADMIN_USERS_GET',{});if(out.status!=='SUCCESS')throw new Error(out.message);document.getElementById('kour-staff-list').innerHTML=(out.users||[]).map(u=>`<div class="flex flex-wrap items-center justify-between gap-2 border rounded-lg p-2"><div><b>${escapeHtml(u.name||u.username)}</b> <span class="text-slate-500">(${escapeHtml(u.username)}) · ${u.role}${u.disabled?' · DISABLED':''}</span><div class="text-slate-500">${(u.permissions||[]).length} permissions</div></div>${u.role==='Staff'?`<div class="flex gap-2"><button class="border rounded px-2 py-1" onclick="kourEditStaff('${encodeURIComponent(u.username)}')">Edit</button><button class="border rounded px-2 py-1" onclick="kourToggleStaff('${encodeURIComponent(u.username)}',${!u.disabled})">${u.disabled?'Enable':'Disable'}</button></div>`:''}</div>`).join('')||'No accounts yet.';window.kourUsers=out.users||[];}catch(e){alert(e.message||'Could not load users.');}
+ }
+ function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ window.kourEditStaff=function(encoded){const u=(window.kourUsers||[]).find(x=>x.username===decodeURIComponent(encoded));if(!u)return;document.getElementById('kour-staff-name').value=u.name||'';document.getElementById('kour-staff-username').value=u.username;document.getElementById('kour-staff-username').readOnly=true;document.getElementById('kour-staff-password').value='';document.querySelectorAll('.kour-permission-check').forEach(c=>c.checked=(u.permissions||[]).includes(c.value));};
+ window.kourToggleStaff=async function(encoded,disabled){const out=await post('ADMIN_USER_DISABLE',{username:decodeURIComponent(encoded),disabled});if(out.status==='SUCCESS')loadUsers();else alert(out.message||'Update failed.');};
+ window.kourResetStaffForm=function(){document.getElementById('kour-staff-form').reset();document.getElementById('kour-staff-username').readOnly=false;};
+ document.getElementById('kour-staff-form').addEventListener('submit',async e=>{e.preventDefault();const data={name:document.getElementById('kour-staff-name').value,username:document.getElementById('kour-staff-username').value,password:document.getElementById('kour-staff-password').value,permissions:Array.from(document.querySelectorAll('.kour-permission-check:checked')).map(c=>c.value)};try{const out=await post('ADMIN_USER_SAVE',data);if(out.status!=='SUCCESS')throw new Error(out.message);window.kourUsers=out.users||[];kourResetStaffForm();await loadUsers();alert('Staff account saved.');}catch(err){alert(err.message||'Could not save account.');}});
+ document.addEventListener('DOMContentLoaded',async()=>{
+   const toolbar=document.querySelector('.kour-topbar>div');
+   if(toolbar){const box=document.createElement('div');box.className='flex items-center gap-2';box.innerHTML='<span id="kour-user-label" class="hidden sm:inline text-[10px] text-amber-100"></span><button id="kour-manage-users-btn" class="hidden bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourOpenAccounts()">Staff Access</button><button class="bg-white/10 border border-white/20 rounded-lg px-2 py-1.5 text-[10px] font-bold" onclick="kourLogout()">Logout</button>';toolbar.appendChild(box);}
+   const ok=await checkSession();
+   if(!ok){
+     showLogin();
+     try{
+       const status=await post('AUTH_STATUS',{});
+       if(status.status==='NO_USERS'){
+         document.getElementById('kour-auth-login').classList.add('hidden');
+         document.getElementById('kour-auth-setup').classList.remove('hidden');
+         message('First-time setup: create the initial Admin account.',false);
+       }
+     }catch(e){message('Cannot reach the Google Sheets backend. Check that the Apps Script Web App is deployed and accessible.');}
+   }
+ });
+})();
+</script>
 
 </body></html>`); win.document.close(); win.focus(); setTimeout(()=>{win.print();},700); }
         function exportGatePassCSV(){ const rows=[GATE_PASS_HEADERS]; gatePasses.forEach(x=>rows.push([x.passNo,x.date,x.movement,x.returnStatus,x.item,x.description,x.qty,x.unit,x.orderNo,x.purpose,x.party,x.person,x.vehicle,x.expectedReturn,x.status,x.returnDate,x.receivedQty,x.remarks,x.id])); const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='KOUR_Gate_Pass_Register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500); }
@@ -7692,93 +7737,6 @@ function testFabricInventory() {
             document.getElementById('image-lightbox').classList.remove('flex');
         }
     </script>
-<script id="kour-auth-phase2-client">
-(()=>{
- 'use strict';
- const GAS_URL='https://script.google.com/macros/s/AKfycbyYARG5W5gbGBnnVHqBH4EpFlzsrVxr_PePyFm4qm0zYbuQokW-FZcJayDMd3isXT8h/exec';
- const TOKEN_KEY='kour_auth_session_token_v1';
- const USER_KEY='kour_auth_session_user_v1';
- const nativeFetch=window.fetch.bind(window);
- let token=sessionStorage.getItem(TOKEN_KEY)||'';
- let user=null; try{user=JSON.parse(sessionStorage.getItem(USER_KEY)||'null')}catch(_e){}
- const gate=document.getElementById('kour-auth-gate');
- const form=document.getElementById('kour-auth-login-form');
- const msg=document.getElementById('kour-auth-message');
- const loginBtn=document.getElementById('kour-auth-login-btn');
- const logoutBtn=document.getElementById('kour-auth-logout');
- const firstAdminLink=document.getElementById('kour-auth-first-admin-link');
- function setMessage(t,isError=true){msg.textContent=t||'';msg.style.color=isError?'#b91c1c':'#15803d'}
- function setBusy(v){loginBtn.disabled=!!v;loginBtn.textContent=v?'Please wait…':'Login'}
- async function authRequest(action,data){
-  const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{}})});
-  if(!r.ok)throw new Error('Server returned HTTP '+r.status);
-  return await r.json();
- }
- function enterDashboard(u){user=u||{};gate.style.display='none';logoutBtn.style.display='block';adminBtn.style.display=(user.role==='Admin'||(user.permissions||[]).includes('manageStaff'))?'block':'none';document.body.dataset.kourAuth='ok';
-  // Keep role identity available to future permission-aware dashboard controls.
-  window.KOUR_AUTH={user,token,hasPermission:(p)=>user.role==='Admin'||(Array.isArray(user.permissions)&&user.permissions.includes(p))};
-  logoutBtn.title='Signed in as '+(user.username||'user')+' ('+(user.role||'Staff')+')';
-  window.dispatchEvent(new CustomEvent('kour-auth-ready',{detail:{user}}));
-  // Initial page-load sync may have run while the login gate was active; refresh after authentication.
-  window.setTimeout(()=>{if(typeof window.syncAllKourData==='function')window.syncAllKourData(true);else if(typeof window.testGoogleSheetsConnection==='function')window.testGoogleSheetsConnection();},700);
- }
- function showGate(){gate.style.display='flex';logoutBtn.style.display='none';document.body.dataset.kourAuth='locked';}
- async function login(username,password){
-  setBusy(true);setMessage('');
-  try{const out=await authRequest('AUTH_LOGIN',{username,password});if(out.status!=='SUCCESS'||!out.token)throw new Error(out.message||'Login failed');
-   token=out.token;sessionStorage.setItem(TOKEN_KEY,token);sessionStorage.setItem(USER_KEY,JSON.stringify(out.user||{}));enterDashboard(out.user||{});
-  }catch(e){setMessage(e.message||'Unable to sign in. Check the Apps Script deployment and try again.')}finally{setBusy(false)}
- }
- form.addEventListener('submit',e=>{e.preventDefault();login(document.getElementById('kour-auth-username').value.trim(),document.getElementById('kour-auth-password').value)});
- firstAdminLink.addEventListener('click',async()=>{
-  const username=prompt('Choose the first Admin username:');if(!username)return;
-  const password=prompt('Create a strong Admin password (at least 12 characters):');if(!password)return;
-  if(password.length<12){setMessage('Password must be at least 12 characters.');return;}
-  const confirmPassword=prompt('Re-enter the Admin password:');if(password!==confirmPassword){setMessage('Passwords do not match.');return;}
-  firstAdminLink.style.pointerEvents='none';setMessage('Creating the first Admin account…',false);
-  try{const out=await authRequest('AUTH_INIT_ADMIN',{username,password});if(out.status!=='SUCCESS')throw new Error(out.message||'Admin setup failed');setMessage(out.message+' Now log in.',false);document.getElementById('kour-auth-username').value=username;document.getElementById('kour-auth-password').value='';}
-  catch(e){setMessage(e.message||'Admin setup failed.');}finally{firstAdminLink.style.pointerEvents='auto'}
- });
- logoutBtn.addEventListener('click',async()=>{try{if(token)await authRequest('AUTH_LOGOUT',{token})}catch(_e){}token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);window.KOUR_AUTH=null;adminPanel.style.display='none';adminBtn.style.display='none';showGate();setMessage('You have been logged out.',false)});
- // Central request adapter: add the session token to every request to this Apps Script web app.
- // Auth endpoints remain public. GET uses a query token; POST JSON receives a top-level token.
- window.fetch=async function(input,init){
-  const opts=init?{...init}:{};let url=typeof input==='string'?input:(input&&input.url)||'';
-  if(!url||!url.startsWith(GAS_URL))return nativeFetch(input,init);
-  let action='';if(opts.body&&typeof opts.body==='string'){try{action=JSON.parse(opts.body).action||''}catch(_e){}}
-  if(action.startsWith('AUTH_'))return nativeFetch(input,init);
-  if(!token)throw new Error('Please log in to access KOUR Dashboard data.');
-  const method=String(opts.method||(input&&input.method)||'GET').toUpperCase();
-  if(method==='GET'){
-   const u=new URL(url);u.searchParams.set('token',token);url=u.toString();
-   if(typeof input==='string')input=url;else input=new Request(url,input);
-  }else if(opts.body&&typeof opts.body==='string'){
-   try{const payload=JSON.parse(opts.body);payload.token=token;opts.body=JSON.stringify(payload)}catch(_e){}
-  }
-  return nativeFetch(input,opts);
- };
- const adminBtn=document.getElementById('kour-auth-admin');
- const adminPanel=document.getElementById('kour-auth-admin-panel');
- const adminStatus=document.getElementById('kour-auth-admin-status');
- const usersList=document.getElementById('kour-auth-users-list');
- const PERMS=[['viewOrders','View orders'],['createOrders','Create orders'],['editOrders','Edit orders'],['deleteOrders','Delete orders'],['viewCosting','View costing'],['editCosting','Edit costing'],['viewProfit','View profit'],['viewSamples','View samples'],['addSamples','Add samples'],['editSamples','Edit samples'],['approveSamples','Approve samples'],['viewProduction','View production'],['updateProduction','Update production'],['updatePacking','Update packing'],['viewDailyReport','View daily report'],['viewActivityLog','View activity log'],['manageStaff','Manage staff'],['manageSettings','Manage settings'],['viewInventory','View inventory'],['manageInventory','Manage inventory'],['viewGatePass','View gate pass'],['manageGatePass','Manage gate pass'],['viewFinance','View finance'],['manageFinance','Manage finance'],['viewPatterns','View patterns'],['managePatterns','Manage patterns'],['viewFabric','View fabric'],['manageFabric','Manage fabric']];
- async function adminCall(action,data){const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},token})});if(!r.ok)throw new Error('Server returned HTTP '+r.status);const out=await r.json();if(out.status!=='SUCCESS')throw new Error(out.message||'Request failed');return out}
- function setAdminStatus(t,bad){adminStatus.textContent=t||'';adminStatus.style.color=bad?'#b91c1c':'#15803d'}
- async function loadAdminUsers(){usersList.innerHTML='';setAdminStatus('Loading staff accounts…');try{const out=await adminCall('AUTH_ADMIN_LIST_USERS');(out.users||[]).forEach(u=>{const card=document.createElement('div');card.className='kour-user-card';const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center';const name=document.createElement('strong');name.textContent=u.username+' · '+u.role+(u.active?'':' · DISABLED');top.appendChild(name);const status=document.createElement('span');status.style.cssText='font-size:11px;color:#64748b';status.textContent='Last login: '+(u.lastLogin?new Date(u.lastLogin).toLocaleString():'Never');card.append(top,status);if(u.role==='Staff'){const grid=document.createElement('div');grid.className='kour-perm-grid';PERMS.forEach(([key,label])=>{const lab=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.value=key;cb.checked=(u.permissions||[]).includes(key);lab.append(cb,document.createTextNode(label));grid.appendChild(lab)});card.appendChild(grid);const save=document.createElement('button');save.textContent='Save permissions';save.style.background='#dbeafe';save.addEventListener('click',async()=>{try{const permissions=[...grid.querySelectorAll('input:checked')].map(x=>x.value);await adminCall('AUTH_ADMIN_SET_PERMISSIONS',{username:u.username,permissions});setAdminStatus('Permissions saved for '+u.username+'.');}catch(e){setAdminStatus(e.message,true)}});card.appendChild(save)}const toggle=document.createElement('button');toggle.textContent=u.active?'Disable account':'Enable account';toggle.style.cssText='margin-left:7px;background:'+(u.active?'#fee2e2':'#dcfce7');toggle.addEventListener('click',async()=>{if(!confirm((u.active?'Disable':'Enable')+' '+u.username+'?'))return;try{await adminCall('AUTH_ADMIN_SET_ACTIVE',{username:u.username,active:!u.active});await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});card.appendChild(toggle);usersList.appendChild(card)});setAdminStatus('Loaded '+(out.users||[]).length+' account(s).')}catch(e){setAdminStatus(e.message,true)}}
- adminBtn.addEventListener('click',()=>{adminPanel.style.display='block';loadAdminUsers()});
- document.getElementById('kour-auth-admin-close').addEventListener('click',()=>adminPanel.style.display='none');
- document.getElementById('kour-auth-refresh-users').addEventListener('click',loadAdminUsers);
- document.getElementById('kour-auth-add-staff').addEventListener('click',async()=>{const username=prompt('New staff username (3–32 characters):');if(!username)return;const password=prompt('Temporary password (at least 12 characters):');if(!password)return;try{await adminCall('AUTH_ADMIN_CREATE_USER',{username,password,role:'Staff',permissions:[]});setAdminStatus('Staff account created. Assign permissions below.');await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});
- window.KOUR_AUTH_ADMIN_API={reload:loadAdminUsers};
- async function restoreSession(){
-  showGate();if(!token)return;
-  try{const out=await authRequest('AUTH_VALIDATE',{token});if(out.status==='SUCCESS'){enterDashboard(out.user||user||{});return;}}
-  catch(_e){}
-  token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);setMessage('Your session expired. Please log in again.');
- }
- restoreSession();
-})();
-</script>
 <script>
 function toggleKourSidebar(){
   const sb=document.getElementById('kour-sidebar');
