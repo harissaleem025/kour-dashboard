@@ -4070,9 +4070,7 @@ function testFabricInventory() {
     observer.observe(document.body,{childList:true,subtree:true});
   });
 })();
-</script>
 
-<script id="kour-auth-phase2-client">
 (()=>{
  'use strict';
  const GAS_URL='https://script.google.com/macros/s/AKfycbyYARG5W5gbGBnnVHqBH4EpFlzsrVxr_PePyFm4qm0zYbuQokW-FZcJayDMd3isXT8h/exec';
@@ -4158,7 +4156,7 @@ function testFabricInventory() {
  }
  restoreSession();
 })();
-</script>
+
 
 </body></html>`); win.document.close(); win.focus(); setTimeout(()=>{win.print();},700); }
         function exportGatePassCSV(){ const rows=[GATE_PASS_HEADERS]; gatePasses.forEach(x=>rows.push([x.passNo,x.date,x.movement,x.returnStatus,x.item,x.description,x.qty,x.unit,x.orderNo,x.purpose,x.party,x.person,x.vehicle,x.expectedReturn,x.status,x.returnDate,x.receivedQty,x.remarks,x.id])); const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='KOUR_Gate_Pass_Register.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500); }
