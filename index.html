@@ -194,25 +194,16 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
         #section-daily-production #daily-order-search::placeholder { color:#991b1b; opacity:.75; }
 
 
-/* TEST FIX: keep authentication controls inside the top navigation flow */
+/* Test dashboard header layout: keep auth controls in the normal flex flow. */
 .kour-topbar{height:auto!important;min-height:72px}
 .kour-topbar>div{height:auto!important;min-height:72px;gap:10px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
 .kour-topbar>div>.flex.items-center.space-x-3.min-w-0{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .kour-auth-header-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-#kour-auth-admin,#kour-auth-logout{position:static!important;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;flex:0 0 auto;margin:0}
+#kour-auth-admin,#kour-auth-logout{position:static!important;align-items:center;justify-content:center;white-space:nowrap;flex:0 0 auto;margin:0}
 #kour-auth-admin{border:0;border-radius:9px;padding:8px 12px;background:#1d4ed8;color:#fff;font-size:12px;font-weight:700}
 #kour-auth-logout{border:0;border-radius:9px;padding:8px 12px;background:#0f172a;color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 10px #0002}
-@media(max-width:900px){
- .kour-topbar>div{align-items:flex-start}
- .kour-topbar>div>.flex.items-center.space-x-3.min-w-0{justify-content:flex-start}
-}
-@media(max-width:600px){
- .kour-topbar{overflow:visible!important}
- .kour-topbar>div{align-items:flex-start;gap:8px}
- .kour-topbar>div>.flex.items-center.space-x-3.min-w-0{width:100%;justify-content:flex-start}
- .kour-auth-header-actions{flex-wrap:wrap}
-}
-
+@media(max-width:900px){.kour-topbar>div{align-items:flex-start}.kour-topbar>div>.flex.items-center.space-x-3.min-w-0{justify-content:flex-start}}
+@media(max-width:600px){.kour-topbar{overflow:visible!important}.kour-topbar>div{align-items:flex-start;gap:8px}.kour-topbar>div>.flex.items-center.space-x-3.min-w-0{width:100%;justify-content:flex-start}.kour-auth-header-actions{flex-wrap:wrap}}
 </style>
 <style>
 .fi-label{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#475569;margin-bottom:5px}
@@ -277,9 +268,9 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
 #kour-auth-gate .auth-msg{min-height:20px;font-size:12px;color:#b91c1c;margin-top:12px;text-align:center;white-space:pre-wrap}
 #kour-auth-gate .auth-note{font-size:11px;color:#64748b;line-height:1.5;margin-top:16px;text-align:center}
 #kour-auth-gate .auth-switch{display:block;text-align:center;font-size:12px;color:#1d4ed8;text-decoration:underline;margin-top:16px;cursor:pointer}
-#kour-auth-logout{position:static;display:inline-flex;align-items:center;white-space:nowrap}
+#kour-auth-logout{position:fixed;right:14px;top:14px;z-index:1000000;border:0;border-radius:9px;padding:8px 12px;background:#0f172a;color:#fff;font-size:12px;font-weight:700;box-shadow:0 2px 10px #0002}
 @media(max-width:600px){#kour-auth-gate{padding:14px}#kour-auth-gate .auth-card{padding:22px 18px;border-radius:18px}}
-
+#kour-auth-admin{right:94px}@media(max-width:600px){#kour-auth-admin{right:88px;top:54px}#kour-auth-logout{top:54px}}
 .kour-perm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin:10px 0}.kour-perm-grid label{display:flex;gap:7px;align-items:center;font-size:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px;padding:7px}.kour-user-card{border:1px solid #cbd5e1;border-radius:12px;padding:13px}.kour-user-card button{border:0;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700}
 </style>
 
@@ -300,7 +291,6 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
   <div class="auth-note">Your account permissions are checked by the Google Apps Script backend. Do not share your password.</div>
  </div>
 </div>
-
 
 <div id="kour-auth-admin-panel" style="display:none;position:fixed;inset:0;z-index:2147482500;background:#0f172a99;padding:14px;overflow:auto">
  <section style="max-width:980px;margin:3vh auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0005">
@@ -359,8 +349,8 @@ body.bg-slate-100{background:#f6f3ef!important;color:#292524!important}
                     <i class="fa-solid fa-plus"></i> New Order
                 </button>
                 <div id="kour-auth-header-actions" class="kour-auth-header-actions">
-                    <button id="kour-auth-admin" type="button">Staff Admin</button>
-                    <button id="kour-auth-logout" type="button">Logout</button>
+                    <button id="kour-auth-admin" type="button" style="display:none">Staff Admin</button>
+                    <button id="kour-auth-logout" type="button" style="display:none">Logout</button>
                 </div>
             </div>
         </div>
@@ -4070,92 +4060,8 @@ function testFabricInventory() {
     observer.observe(document.body,{childList:true,subtree:true});
   });
 })();
+<\/script>
 
-(()=>{
- 'use strict';
- const GAS_URL='https://script.google.com/macros/s/AKfycbyYARG5W5gbGBnnVHqBH4EpFlzsrVxr_PePyFm4qm0zYbuQokW-FZcJayDMd3isXT8h/exec';
- const TOKEN_KEY='kour_auth_session_token_v1';
- const USER_KEY='kour_auth_session_user_v1';
- const nativeFetch=window.fetch.bind(window);
- let token=sessionStorage.getItem(TOKEN_KEY)||'';
- let user=null; try{user=JSON.parse(sessionStorage.getItem(USER_KEY)||'null')}catch(_e){}
- const gate=document.getElementById('kour-auth-gate');
- const form=document.getElementById('kour-auth-login-form');
- const msg=document.getElementById('kour-auth-message');
- const loginBtn=document.getElementById('kour-auth-login-btn');
- const logoutBtn=document.getElementById('kour-auth-logout');
- const firstAdminLink=document.getElementById('kour-auth-first-admin-link');
- function setMessage(t,isError=true){msg.textContent=t||'';msg.style.color=isError?'#b91c1c':'#15803d'}
- function setBusy(v){loginBtn.disabled=!!v;loginBtn.textContent=v?'Please wait…':'Login'}
- async function authRequest(action,data){
-  const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{}})});
-  if(!r.ok)throw new Error('Server returned HTTP '+r.status);
-  return await r.json();
- }
- function enterDashboard(u){user=u||{};gate.style.display='none';logoutBtn.style.display='block';adminBtn.style.display=(user.role==='Admin'||(user.permissions||[]).includes('manageStaff'))?'block':'none';document.body.dataset.kourAuth='ok';
-  // Keep role identity available to future permission-aware dashboard controls.
-  window.KOUR_AUTH={user,token,hasPermission:(p)=>user.role==='Admin'||(Array.isArray(user.permissions)&&user.permissions.includes(p))};
-  logoutBtn.title='Signed in as '+(user.username||'user')+' ('+(user.role||'Staff')+')';
-  window.dispatchEvent(new CustomEvent('kour-auth-ready',{detail:{user}}));
-  // Initial page-load sync may have run while the login gate was active; refresh after authentication.
-  window.setTimeout(()=>{if(typeof window.syncAllKourData==='function')window.syncAllKourData(true);else if(typeof window.testGoogleSheetsConnection==='function')window.testGoogleSheetsConnection();},700);
- }
- function showGate(){gate.style.display='flex';logoutBtn.style.display='none';document.body.dataset.kourAuth='locked';}
- async function login(username,password){
-  setBusy(true);setMessage('');
-  try{const out=await authRequest('AUTH_LOGIN',{username,password});if(out.status!=='SUCCESS'||!out.token)throw new Error(out.message||'Login failed');
-   token=out.token;sessionStorage.setItem(TOKEN_KEY,token);sessionStorage.setItem(USER_KEY,JSON.stringify(out.user||{}));enterDashboard(out.user||{});
-  }catch(e){setMessage(e.message||'Unable to sign in. Check the Apps Script deployment and try again.')}finally{setBusy(false)}
- }
- form.addEventListener('submit',e=>{e.preventDefault();login(document.getElementById('kour-auth-username').value.trim(),document.getElementById('kour-auth-password').value)});
- firstAdminLink.addEventListener('click',async()=>{
-  const username=prompt('Choose the first Admin username:');if(!username)return;
-  const password=prompt('Create a strong Admin password (at least 12 characters):');if(!password)return;
-  if(password.length<12){setMessage('Password must be at least 12 characters.');return;}
-  const confirmPassword=prompt('Re-enter the Admin password:');if(password!==confirmPassword){setMessage('Passwords do not match.');return;}
-  firstAdminLink.style.pointerEvents='none';setMessage('Creating the first Admin account…',false);
-  try{const out=await authRequest('AUTH_INIT_ADMIN',{username,password});if(out.status!=='SUCCESS')throw new Error(out.message||'Admin setup failed');setMessage(out.message+' Now log in.',false);document.getElementById('kour-auth-username').value=username;document.getElementById('kour-auth-password').value='';}
-  catch(e){setMessage(e.message||'Admin setup failed.');}finally{firstAdminLink.style.pointerEvents='auto'}
- });
- logoutBtn.addEventListener('click',async()=>{try{if(token)await authRequest('AUTH_LOGOUT',{token})}catch(_e){}token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);window.KOUR_AUTH=null;adminPanel.style.display='none';adminBtn.style.display='none';showGate();setMessage('You have been logged out.',false)});
- // Central request adapter: add the session token to every request to this Apps Script web app.
- // Auth endpoints remain public. GET uses a query token; POST JSON receives a top-level token.
- window.fetch=async function(input,init){
-  const opts=init?{...init}:{};let url=typeof input==='string'?input:(input&&input.url)||'';
-  if(!url||!url.startsWith(GAS_URL))return nativeFetch(input,init);
-  let action='';if(opts.body&&typeof opts.body==='string'){try{action=JSON.parse(opts.body).action||''}catch(_e){}}
-  if(action.startsWith('AUTH_'))return nativeFetch(input,init);
-  if(!token)throw new Error('Please log in to access KOUR Dashboard data.');
-  const method=String(opts.method||(input&&input.method)||'GET').toUpperCase();
-  if(method==='GET'){
-   const u=new URL(url);u.searchParams.set('token',token);url=u.toString();
-   if(typeof input==='string')input=url;else input=new Request(url,input);
-  }else if(opts.body&&typeof opts.body==='string'){
-   try{const payload=JSON.parse(opts.body);payload.token=token;opts.body=JSON.stringify(payload)}catch(_e){}
-  }
-  return nativeFetch(input,opts);
- };
- const adminBtn=document.getElementById('kour-auth-admin');
- const adminPanel=document.getElementById('kour-auth-admin-panel');
- const adminStatus=document.getElementById('kour-auth-admin-status');
- const usersList=document.getElementById('kour-auth-users-list');
- const PERMS=[['viewOrders','View orders'],['createOrders','Create orders'],['editOrders','Edit orders'],['deleteOrders','Delete orders'],['viewCosting','View costing'],['editCosting','Edit costing'],['viewProfit','View profit'],['viewSamples','View samples'],['addSamples','Add samples'],['editSamples','Edit samples'],['approveSamples','Approve samples'],['viewProduction','View production'],['updateProduction','Update production'],['updatePacking','Update packing'],['viewDailyReport','View daily report'],['viewActivityLog','View activity log'],['manageStaff','Manage staff'],['manageSettings','Manage settings'],['viewInventory','View inventory'],['manageInventory','Manage inventory'],['viewGatePass','View gate pass'],['manageGatePass','Manage gate pass'],['viewFinance','View finance'],['manageFinance','Manage finance'],['viewPatterns','View patterns'],['managePatterns','Manage patterns'],['viewFabric','View fabric'],['manageFabric','Manage fabric']];
- async function adminCall(action,data){const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},token})});if(!r.ok)throw new Error('Server returned HTTP '+r.status);const out=await r.json();if(out.status!=='SUCCESS')throw new Error(out.message||'Request failed');return out}
- function setAdminStatus(t,bad){adminStatus.textContent=t||'';adminStatus.style.color=bad?'#b91c1c':'#15803d'}
- async function loadAdminUsers(){usersList.innerHTML='';setAdminStatus('Loading staff accounts…');try{const out=await adminCall('AUTH_ADMIN_LIST_USERS');(out.users||[]).forEach(u=>{const card=document.createElement('div');card.className='kour-user-card';const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center';const name=document.createElement('strong');name.textContent=u.username+' · '+u.role+(u.active?'':' · DISABLED');top.appendChild(name);const status=document.createElement('span');status.style.cssText='font-size:11px;color:#64748b';status.textContent='Last login: '+(u.lastLogin?new Date(u.lastLogin).toLocaleString():'Never');card.append(top,status);if(u.role==='Staff'){const grid=document.createElement('div');grid.className='kour-perm-grid';PERMS.forEach(([key,label])=>{const lab=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.value=key;cb.checked=(u.permissions||[]).includes(key);lab.append(cb,document.createTextNode(label));grid.appendChild(lab)});card.appendChild(grid);const save=document.createElement('button');save.textContent='Save permissions';save.style.background='#dbeafe';save.addEventListener('click',async()=>{try{const permissions=[...grid.querySelectorAll('input:checked')].map(x=>x.value);await adminCall('AUTH_ADMIN_SET_PERMISSIONS',{username:u.username,permissions});setAdminStatus('Permissions saved for '+u.username+'.');}catch(e){setAdminStatus(e.message,true)}});card.appendChild(save)}const toggle=document.createElement('button');toggle.textContent=u.active?'Disable account':'Enable account';toggle.style.cssText='margin-left:7px;background:'+(u.active?'#fee2e2':'#dcfce7');toggle.addEventListener('click',async()=>{if(!confirm((u.active?'Disable':'Enable')+' '+u.username+'?'))return;try{await adminCall('AUTH_ADMIN_SET_ACTIVE',{username:u.username,active:!u.active});await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});card.appendChild(toggle);usersList.appendChild(card)});setAdminStatus('Loaded '+(out.users||[]).length+' account(s).')}catch(e){setAdminStatus(e.message,true)}}
- adminBtn.addEventListener('click',()=>{adminPanel.style.display='block';loadAdminUsers()});
- document.getElementById('kour-auth-admin-close').addEventListener('click',()=>adminPanel.style.display='none');
- document.getElementById('kour-auth-refresh-users').addEventListener('click',loadAdminUsers);
- document.getElementById('kour-auth-add-staff').addEventListener('click',async()=>{const username=prompt('New staff username (3–32 characters):');if(!username)return;const password=prompt('Temporary password (at least 12 characters):');if(!password)return;try{await adminCall('AUTH_ADMIN_CREATE_USER',{username,password,role:'Staff',permissions:[]});setAdminStatus('Staff account created. Assign permissions below.');await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});
- window.KOUR_AUTH_ADMIN_API={reload:loadAdminUsers};
- async function restoreSession(){
-  showGate();if(!token)return;
-  try{const out=await authRequest('AUTH_VALIDATE',{token});if(out.status==='SUCCESS'){enterDashboard(out.user||user||{});return;}}
-  catch(_e){}
-  token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);setMessage('Your session expired. Please log in again.');
- }
- restoreSession();
-})();
 
 
 </body></html>`); win.document.close(); win.focus(); setTimeout(()=>{win.print();},700); }
@@ -7786,6 +7692,93 @@ function testFabricInventory() {
             document.getElementById('image-lightbox').classList.remove('flex');
         }
     </script>
+<script id="kour-auth-phase2-client">
+(()=>{
+ 'use strict';
+ const GAS_URL='https://script.google.com/macros/s/AKfycbyYARG5W5gbGBnnVHqBH4EpFlzsrVxr_PePyFm4qm0zYbuQokW-FZcJayDMd3isXT8h/exec';
+ const TOKEN_KEY='kour_auth_session_token_v1';
+ const USER_KEY='kour_auth_session_user_v1';
+ const nativeFetch=window.fetch.bind(window);
+ let token=sessionStorage.getItem(TOKEN_KEY)||'';
+ let user=null; try{user=JSON.parse(sessionStorage.getItem(USER_KEY)||'null')}catch(_e){}
+ const gate=document.getElementById('kour-auth-gate');
+ const form=document.getElementById('kour-auth-login-form');
+ const msg=document.getElementById('kour-auth-message');
+ const loginBtn=document.getElementById('kour-auth-login-btn');
+ const logoutBtn=document.getElementById('kour-auth-logout');
+ const firstAdminLink=document.getElementById('kour-auth-first-admin-link');
+ function setMessage(t,isError=true){msg.textContent=t||'';msg.style.color=isError?'#b91c1c':'#15803d'}
+ function setBusy(v){loginBtn.disabled=!!v;loginBtn.textContent=v?'Please wait…':'Login'}
+ async function authRequest(action,data){
+  const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{}})});
+  if(!r.ok)throw new Error('Server returned HTTP '+r.status);
+  return await r.json();
+ }
+ function enterDashboard(u){user=u||{};gate.style.display='none';logoutBtn.style.display='block';adminBtn.style.display=(user.role==='Admin'||(user.permissions||[]).includes('manageStaff'))?'block':'none';document.body.dataset.kourAuth='ok';
+  // Keep role identity available to future permission-aware dashboard controls.
+  window.KOUR_AUTH={user,token,hasPermission:(p)=>user.role==='Admin'||(Array.isArray(user.permissions)&&user.permissions.includes(p))};
+  logoutBtn.title='Signed in as '+(user.username||'user')+' ('+(user.role||'Staff')+')';
+  window.dispatchEvent(new CustomEvent('kour-auth-ready',{detail:{user}}));
+  // Initial page-load sync may have run while the login gate was active; refresh after authentication.
+  window.setTimeout(()=>{if(typeof window.syncAllKourData==='function')window.syncAllKourData(true);else if(typeof window.testGoogleSheetsConnection==='function')window.testGoogleSheetsConnection();},700);
+ }
+ function showGate(){gate.style.display='flex';logoutBtn.style.display='none';document.body.dataset.kourAuth='locked';}
+ async function login(username,password){
+  setBusy(true);setMessage('');
+  try{const out=await authRequest('AUTH_LOGIN',{username,password});if(out.status!=='SUCCESS'||!out.token)throw new Error(out.message||'Login failed');
+   token=out.token;sessionStorage.setItem(TOKEN_KEY,token);sessionStorage.setItem(USER_KEY,JSON.stringify(out.user||{}));enterDashboard(out.user||{});
+  }catch(e){setMessage(e.message||'Unable to sign in. Check the Apps Script deployment and try again.')}finally{setBusy(false)}
+ }
+ form.addEventListener('submit',e=>{e.preventDefault();login(document.getElementById('kour-auth-username').value.trim(),document.getElementById('kour-auth-password').value)});
+ firstAdminLink.addEventListener('click',async()=>{
+  const username=prompt('Choose the first Admin username:');if(!username)return;
+  const password=prompt('Create a strong Admin password (at least 12 characters):');if(!password)return;
+  if(password.length<12){setMessage('Password must be at least 12 characters.');return;}
+  const confirmPassword=prompt('Re-enter the Admin password:');if(password!==confirmPassword){setMessage('Passwords do not match.');return;}
+  firstAdminLink.style.pointerEvents='none';setMessage('Creating the first Admin account…',false);
+  try{const out=await authRequest('AUTH_INIT_ADMIN',{username,password});if(out.status!=='SUCCESS')throw new Error(out.message||'Admin setup failed');setMessage(out.message+' Now log in.',false);document.getElementById('kour-auth-username').value=username;document.getElementById('kour-auth-password').value='';}
+  catch(e){setMessage(e.message||'Admin setup failed.');}finally{firstAdminLink.style.pointerEvents='auto'}
+ });
+ logoutBtn.addEventListener('click',async()=>{try{if(token)await authRequest('AUTH_LOGOUT',{token})}catch(_e){}token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);window.KOUR_AUTH=null;adminPanel.style.display='none';adminBtn.style.display='none';showGate();setMessage('You have been logged out.',false)});
+ // Central request adapter: add the session token to every request to this Apps Script web app.
+ // Auth endpoints remain public. GET uses a query token; POST JSON receives a top-level token.
+ window.fetch=async function(input,init){
+  const opts=init?{...init}:{};let url=typeof input==='string'?input:(input&&input.url)||'';
+  if(!url||!url.startsWith(GAS_URL))return nativeFetch(input,init);
+  let action='';if(opts.body&&typeof opts.body==='string'){try{action=JSON.parse(opts.body).action||''}catch(_e){}}
+  if(action.startsWith('AUTH_'))return nativeFetch(input,init);
+  if(!token)throw new Error('Please log in to access KOUR Dashboard data.');
+  const method=String(opts.method||(input&&input.method)||'GET').toUpperCase();
+  if(method==='GET'){
+   const u=new URL(url);u.searchParams.set('token',token);url=u.toString();
+   if(typeof input==='string')input=url;else input=new Request(url,input);
+  }else if(opts.body&&typeof opts.body==='string'){
+   try{const payload=JSON.parse(opts.body);payload.token=token;opts.body=JSON.stringify(payload)}catch(_e){}
+  }
+  return nativeFetch(input,opts);
+ };
+ const adminBtn=document.getElementById('kour-auth-admin');
+ const adminPanel=document.getElementById('kour-auth-admin-panel');
+ const adminStatus=document.getElementById('kour-auth-admin-status');
+ const usersList=document.getElementById('kour-auth-users-list');
+ const PERMS=[['viewOrders','View orders'],['createOrders','Create orders'],['editOrders','Edit orders'],['deleteOrders','Delete orders'],['viewCosting','View costing'],['editCosting','Edit costing'],['viewProfit','View profit'],['viewSamples','View samples'],['addSamples','Add samples'],['editSamples','Edit samples'],['approveSamples','Approve samples'],['viewProduction','View production'],['updateProduction','Update production'],['updatePacking','Update packing'],['viewDailyReport','View daily report'],['viewActivityLog','View activity log'],['manageStaff','Manage staff'],['manageSettings','Manage settings'],['viewInventory','View inventory'],['manageInventory','Manage inventory'],['viewGatePass','View gate pass'],['manageGatePass','Manage gate pass'],['viewFinance','View finance'],['manageFinance','Manage finance'],['viewPatterns','View patterns'],['managePatterns','Manage patterns'],['viewFabric','View fabric'],['manageFabric','Manage fabric']];
+ async function adminCall(action,data){const r=await nativeFetch(GAS_URL,{method:'POST',mode:'cors',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data:data||{},token})});if(!r.ok)throw new Error('Server returned HTTP '+r.status);const out=await r.json();if(out.status!=='SUCCESS')throw new Error(out.message||'Request failed');return out}
+ function setAdminStatus(t,bad){adminStatus.textContent=t||'';adminStatus.style.color=bad?'#b91c1c':'#15803d'}
+ async function loadAdminUsers(){usersList.innerHTML='';setAdminStatus('Loading staff accounts…');try{const out=await adminCall('AUTH_ADMIN_LIST_USERS');(out.users||[]).forEach(u=>{const card=document.createElement('div');card.className='kour-user-card';const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center';const name=document.createElement('strong');name.textContent=u.username+' · '+u.role+(u.active?'':' · DISABLED');top.appendChild(name);const status=document.createElement('span');status.style.cssText='font-size:11px;color:#64748b';status.textContent='Last login: '+(u.lastLogin?new Date(u.lastLogin).toLocaleString():'Never');card.append(top,status);if(u.role==='Staff'){const grid=document.createElement('div');grid.className='kour-perm-grid';PERMS.forEach(([key,label])=>{const lab=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.value=key;cb.checked=(u.permissions||[]).includes(key);lab.append(cb,document.createTextNode(label));grid.appendChild(lab)});card.appendChild(grid);const save=document.createElement('button');save.textContent='Save permissions';save.style.background='#dbeafe';save.addEventListener('click',async()=>{try{const permissions=[...grid.querySelectorAll('input:checked')].map(x=>x.value);await adminCall('AUTH_ADMIN_SET_PERMISSIONS',{username:u.username,permissions});setAdminStatus('Permissions saved for '+u.username+'.');}catch(e){setAdminStatus(e.message,true)}});card.appendChild(save)}const toggle=document.createElement('button');toggle.textContent=u.active?'Disable account':'Enable account';toggle.style.cssText='margin-left:7px;background:'+(u.active?'#fee2e2':'#dcfce7');toggle.addEventListener('click',async()=>{if(!confirm((u.active?'Disable':'Enable')+' '+u.username+'?'))return;try{await adminCall('AUTH_ADMIN_SET_ACTIVE',{username:u.username,active:!u.active});await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});card.appendChild(toggle);usersList.appendChild(card)});setAdminStatus('Loaded '+(out.users||[]).length+' account(s).')}catch(e){setAdminStatus(e.message,true)}}
+ adminBtn.addEventListener('click',()=>{adminPanel.style.display='block';loadAdminUsers()});
+ document.getElementById('kour-auth-admin-close').addEventListener('click',()=>adminPanel.style.display='none');
+ document.getElementById('kour-auth-refresh-users').addEventListener('click',loadAdminUsers);
+ document.getElementById('kour-auth-add-staff').addEventListener('click',async()=>{const username=prompt('New staff username (3–32 characters):');if(!username)return;const password=prompt('Temporary password (at least 12 characters):');if(!password)return;try{await adminCall('AUTH_ADMIN_CREATE_USER',{username,password,role:'Staff',permissions:[]});setAdminStatus('Staff account created. Assign permissions below.');await loadAdminUsers()}catch(e){setAdminStatus(e.message,true)}});
+ window.KOUR_AUTH_ADMIN_API={reload:loadAdminUsers};
+ async function restoreSession(){
+  showGate();if(!token)return;
+  try{const out=await authRequest('AUTH_VALIDATE',{token});if(out.status==='SUCCESS'){enterDashboard(out.user||user||{});return;}}
+  catch(_e){}
+  token='';user=null;sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);setMessage('Your session expired. Please log in again.');
+ }
+ restoreSession();
+})();
+</script>
 <script>
 function toggleKourSidebar(){
   const sb=document.getElementById('kour-sidebar');
