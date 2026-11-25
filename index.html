@@ -911,11 +911,14 @@ body:not(.kour-authenticated) #kour-sidebar,body:not(.kour-authenticated) #kour-
                     </div>
                 </div>
                 <div class="rounded-xl border border-rose-200 bg-rose-50/60 p-3 mt-4">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <div><label class="text-xs font-extrabold text-slate-800">Select Sizes for Packing List</label><p class="text-[10px] text-slate-600">Choose the sizes to include for each selected order. Custom sizes are supported.</p></div>
-                        <div class="flex gap-2"><button type="button" onclick="setPackingSizesForSelected(true)" class="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-rose-900 text-white">Select all sizes</button><button type="button" onclick="setPackingSizesForSelected(false)" class="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700">Deselect all sizes</button></div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div><label class="text-xs font-extrabold text-slate-800">Size Breakdown</label><p class="text-[10px] text-slate-600">Choose one breakdown for every selected order, or include all sizes automatically.</p></div>
+                        <select id="packing-breakdown-mode" class="border border-slate-300 rounded-lg bg-white text-xs font-bold p-2" onchange="setPackingBreakdownMode(this.value)">
+                            <option value="all">All Breakdowns (All Sizes)</option>
+                            <option value="select">Select Breakdown (Choose Sizes)</option>
+                        </select>
                     </div>
-                    <div id="packing-size-selection" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"></div>
+                    <div id="packing-size-selection" class="hidden flex flex-wrap gap-2"></div>
                 </div>
             </div>
 
@@ -6768,6 +6771,8 @@ function testFabricInventory() {
         // Per-order size selection for the packing list. Defaults to all sizes on each order.
         const packingSizeSelected = {};
         const packingSizeInitialized = {};
+        let packingBreakdownMode = 'all';
+        const packingGlobalBreakdown = new Set();
         let packingFiltersInitialized = false;
 
         function packingSafeText(value) {
@@ -6821,27 +6826,33 @@ function testFabricInventory() {
 
         function renderPackingSizeSelection() {
             const box=document.getElementById('packing-size-selection'); if(!box) return;
+            const mode=document.getElementById('packing-breakdown-mode');
+            if(mode) mode.value=packingBreakdownMode;
+            box.classList.toggle('hidden',packingBreakdownMode!=='select');
+            if(packingBreakdownMode!=='select'){ box.innerHTML=''; return; }
             const selectedOrders=(orders||[]).filter(o=>packingSelected.order.has(String(o.orderNo)) && packingSelected.buyer.has(String(o.buyer||'').trim()));
-            if(!selectedOrders.length){box.innerHTML='<p class="text-[11px] text-slate-500">Select at least one buyer and order to choose packing sizes.</p>';return;}
-            box.innerHTML=selectedOrders.map(o=>{
-                const key=String(o.orderNo), labels=getOrderSizeLabels(o);
-                if(!packingSizeSelected[key]) packingSizeSelected[key]=labels.map(sizeKey);
-                if(!packingSizeInitialized[key]) { labels.forEach(sz=>{const k=sizeKey(sz); if(!packingSizeSelected[key].includes(k)) packingSizeSelected[key].push(k);}); packingSizeInitialized[key]=true; }
-                return `<div class="bg-white border border-slate-200 rounded-lg p-2"><div class="text-[11px] font-extrabold text-slate-800 mb-2">Order ${packingSafeText(key)} <span class="font-normal text-slate-500">— ${packingSafeText(o.buyer||'')}</span></div><div class="flex flex-wrap gap-1.5">${labels.map(sz=>`<label class="inline-flex items-center gap-1 text-[10px] font-semibold border rounded-md px-2 py-1"><input type="checkbox" ${packingSizeSelected[key].includes(sizeKey(sz))?'checked':''} onchange="togglePackingSize('${packingSafeText(key)}','${packingSafeText(sizeKey(sz))}',this.checked)" class="accent-rose-900">${packingSafeText(sz)}</label>`).join('')}</div></div>`;
-            }).join('');
+            const labels=[];
+            selectedOrders.forEach(o=>getOrderSizeLabels(o).forEach(sz=>{const key=sizeKey(sz);if(!labels.some(x=>sizeKey(x)===key))labels.push(sz);}));
+            labels.sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
+            if(!selectedOrders.length){box.innerHTML='<p class="text-[11px] text-slate-500">Select at least one buyer and order first.</p>';return;}
+            if(!labels.length){box.innerHTML='<p class="text-[11px] text-slate-500">No size breakdowns found for the selected orders.</p>';return;}
+            box.innerHTML=labels.map(sz=>`<label class="inline-flex items-center gap-1.5 text-[11px] font-semibold border border-slate-300 bg-white rounded-lg px-3 py-2"><input type="checkbox" class="accent-rose-900" ${packingGlobalBreakdown.has(sizeKey(sz))?'checked':''} onchange="togglePackingGlobalBreakdown('${packingSafeText(sizeKey(sz))}',this.checked)">${packingSafeText(sz)}</label>`).join('');
         }
-        function togglePackingSize(orderNo,key,checked){
-            if(!packingSizeSelected[orderNo]) packingSizeSelected[orderNo]=[];
-            packingSizeSelected[orderNo]=packingSizeSelected[orderNo].filter(x=>x!==key);
-            if(checked) packingSizeSelected[orderNo].push(key);
+        function setPackingBreakdownMode(mode){
+            packingBreakdownMode=mode==='select'?'select':'all';
+            if(packingBreakdownMode==='all') packingGlobalBreakdown.clear();
+            renderPackingSizeSelection(); generatePackingList();
+        }
+        function togglePackingGlobalBreakdown(key,checked){
+            if(checked) packingGlobalBreakdown.add(key); else packingGlobalBreakdown.delete(key);
             generatePackingList();
         }
+        function togglePackingSize(orderNo,key,checked){ /* legacy compatibility */ }
         function setPackingSizesForSelected(visible){
-            (orders||[]).filter(o=>packingSelected.order.has(String(o.orderNo)) && packingSelected.buyer.has(String(o.buyer||'').trim())).forEach(o=>{
-                packingSizeSelected[String(o.orderNo)]=visible?getOrderSizeLabels(o).map(sizeKey):[];
-                packingSizeInitialized[String(o.orderNo)]=true;
-            });
-            renderPackingSizeSelection(); generatePackingList();
+            packingBreakdownMode=visible?'all':'select';
+            if(visible) packingGlobalBreakdown.clear();
+            const mode=document.getElementById('packing-breakdown-mode');if(mode)mode.value=packingBreakdownMode;
+            renderPackingSizeSelection();generatePackingList();
         }
 
         function togglePackingChoice(kind, checkbox) {
@@ -6912,7 +6923,8 @@ function testFabricInventory() {
             const sizeColumns=[];
             filteredOrders.forEach(ord=>getOrderSizeLabels(ord).forEach(sz=>{
                 const selected=packingSizeSelected[String(ord.orderNo)];
-                if((!selected || selected.includes(sizeKey(sz))) && !sizeColumns.some(existing=>sizeKey(existing)===sizeKey(sz))) sizeColumns.push(sz);
+                const includeSize=packingBreakdownMode==='all' || (packingGlobalBreakdown.size>0 && packingGlobalBreakdown.has(sizeKey(sz)));
+                if(includeSize && !sizeColumns.some(existing=>sizeKey(existing)===sizeKey(sz))) sizeColumns.push(sz);
             }));
             const header=document.getElementById('packing-size-header');
             if(header) header.innerHTML=`<th class="border border-slate-400 p-2">Order / PO</th><th class="border border-slate-400 p-2">Buyer</th><th class="border border-slate-400 p-2">Item Description</th><th class="border border-slate-400 p-2">Colour</th>${sizeColumns.map(sz=>`<th class="border border-slate-400 p-2 text-center">${packingSafeText(sz)}</th>`).join('')}<th class="border border-slate-400 p-2 text-center bg-slate-300 font-extrabold">Total Qty</th>`;
@@ -6924,8 +6936,7 @@ function testFabricInventory() {
 
                 stagesToInclude.forEach(stg => {
                     const stgObj = getOrderStageData(ord,stg);
-                    const selectedForOrder=packingSizeSelected[String(ord.orderNo)];
-                    const orderSizeLabels = getOrderSizeLabels(ord).filter(sz=>!selectedForOrder || selectedForOrder.includes(sizeKey(sz)));
+                    const orderSizeLabels = getOrderSizeLabels(ord).filter(sz=>packingBreakdownMode==='all' || (packingGlobalBreakdown.size>0 && packingGlobalBreakdown.has(sizeKey(sz))));
                     const totalPcs = orderSizeLabels.reduce((sum,sz)=>sum+sizeValueFor(stgObj,sz),0);
 
                     if (totalPcs > 0 || stageFilter !== 'All') {
@@ -7679,7 +7690,15 @@ window.addEventListener('resize',()=>{
  const AUTH_TOKEN_KEY='kour_auth_token_v1';
  const AUTH_USER_KEY='kour_auth_user_v1';
  const originalFetch=window.fetch.bind(window);
- let authToken=localStorage.getItem(AUTH_TOKEN_KEY)||'';
+ let authToken=sessionStorage.getItem(AUTH_TOKEN_KEY)||'';
+ try{localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);}catch(e){}
+ let kourIdleLogoutTimer=null;
+ const KOUR_IDLE_LOGOUT_MS=30*60*1000;
+ function clearKourIdleLogout(){if(kourIdleLogoutTimer)clearTimeout(kourIdleLogoutTimer);kourIdleLogoutTimer=null;}
+ function armKourIdleLogout(){clearKourIdleLogout();if(!authToken||!currentUser)return;kourIdleLogoutTimer=setTimeout(()=>{alert('You were logged out after 30 minutes of inactivity.');window.kourLogout();},KOUR_IDLE_LOGOUT_MS);}
+ function kourRegisterActivity(){if(authToken&&currentUser)armKourIdleLogout();}
+ ['pointerdown','keydown','mousemove','scroll','touchstart','click'].forEach(ev=>window.addEventListener(ev,kourRegisterActivity,{passive:true}));
+ window.addEventListener('storage',e=>{if(e.key===AUTH_TOKEN_KEY&&e.newValue===null){authToken='';currentUser=null;showLogin();}});
  let currentUser=null;
  const originalInitAutoSync=window.initKourAutoSync;
  window.__kourOriginalInitAutoSync=originalInitAutoSync;
@@ -7699,7 +7718,9 @@ window.addEventListener('resize',()=>{
    const labels={orders_create:'create orders',orders_edit:'edit orders',orders_delete:'delete orders',samples_create:'create samples',samples_edit:'edit samples',samples_delete:'delete samples',samples_approve:'approve samples',costing_edit:'edit costing',production_edit:'edit production',fabric_edit:'manage fabric inventory',pattern_edit:'edit patterns',pattern_delete:'delete patterns',gatepass_edit:'manage gate passes',finance_edit:'manage finance'};
    const label=required.map(p=>labels[p]||p).join(' or ');
    alert('Permission denied: your account does not have permission to '+label+'. No changes were saved. Please contact your Admin.');
-   // Block the write in place. Do not reload or navigate the dashboard.
+   // The dashboard uses optimistic UI in some forms. Reload after blocking the
+   // request so any unsaved in-memory display change is discarded as well.
+   setTimeout(()=>location.reload(),0);
    return false;
  }
  const perms=[
@@ -7734,7 +7755,7 @@ window.addEventListener('resize',()=>{
  function message(t,isError=true){const el=document.getElementById('kour-auth-message');if(el){el.textContent=t||'';el.className='text-xs mt-4 '+(isError?'text-red-700':'text-emerald-700');}}
  function showLogin(){document.body.classList.remove('kour-authenticated');document.getElementById('kour-auth-screen').classList.remove('kour-auth-hidden');}
  function enter(user,token){
-   authToken=token;currentUser=user;localStorage.setItem(AUTH_TOKEN_KEY,token);localStorage.setItem(AUTH_USER_KEY,JSON.stringify(user));
+   authToken=token;currentUser=user;sessionStorage.setItem(AUTH_TOKEN_KEY,token);sessionStorage.setItem(AUTH_USER_KEY,JSON.stringify(user));armKourIdleLogout();
    document.body.classList.add('kour-authenticated');document.getElementById('kour-auth-screen').classList.add('kour-auth-hidden');
    const label=document.getElementById('kour-user-label');if(label)label.textContent=(user.name||user.username)+' · '+user.role;
    const adminBtn=document.getElementById('kour-manage-users-btn');if(adminBtn)adminBtn.classList.toggle('hidden',user.role!=='Admin');
@@ -7749,9 +7770,9 @@ window.addEventListener('resize',()=>{
    if(!authToken)return false;
    try{
      const r=await originalFetch(syncUrl+'?sheet=test&authToken='+encodeURIComponent(authToken)+'&t='+Date.now(),{cache:'no-store'});
-     const out=await r.json();if(out&&out.status==='SUCCESS'){let user={};try{user=JSON.parse(localStorage.getItem(AUTH_USER_KEY)||'{}')}catch(e){}enter(user,authToken);return true;}
+     const out=await r.json();if(out&&out.status==='SUCCESS'){let user={};try{user=JSON.parse(sessionStorage.getItem(AUTH_USER_KEY)||'{}')}catch(e){}enter(user,authToken);return true;}
    }catch(e){}
-   authToken='';localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);if(typeof stopKourAutoSync==='function')stopKourAutoSync();return false;
+   authToken='';currentUser=null;sessionStorage.removeItem(AUTH_TOKEN_KEY);sessionStorage.removeItem(AUTH_USER_KEY);if(typeof stopKourAutoSync==='function')stopKourAutoSync();return false;
  }
  async function login(data,setup){
    message('Connecting securely to KOUR…',false);
@@ -7774,7 +7795,7 @@ window.addEventListener('resize',()=>{
    try{const out=await post('CHANGE_PASSWORD',{currentPassword,newPassword});if(out.status!=='SUCCESS')throw new Error(out.message||'Password change failed.');alert('Your password has been changed successfully.');}
    catch(e){alert(e.message||'Could not change password.');}
  };
- window.kourLogout=async function(){try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;localStorage.removeItem(AUTH_TOKEN_KEY);localStorage.removeItem(AUTH_USER_KEY);location.reload();};
+ window.kourLogout=async function(){clearKourIdleLogout();try{await post('LOGOUT',{});}catch(e){}authToken='';currentUser=null;sessionStorage.removeItem(AUTH_TOKEN_KEY);sessionStorage.removeItem(AUTH_USER_KEY);location.reload();};
  window.kourOpenAccounts=async function(){if(!currentUser||currentUser.role!=='Admin')return;document.getElementById('kour-account-panel').classList.add('open');renderPermissions();await loadUsers();};
  window.kourCloseAccounts=()=>document.getElementById('kour-account-panel').classList.remove('open');
  function renderPermissions(){
